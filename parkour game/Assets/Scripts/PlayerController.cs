@@ -88,4 +88,12 @@ public class PlayerController : MonoBehaviour
         transform.position += moveDirection * currentSpeed * Time.deltaTime;
         transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(moveDirection), rotationSpeed * Time.deltaTime);
     }
+
+    public void HandleAttacking(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Debug.Log("Ik val aan");
+        }
+    }
 }

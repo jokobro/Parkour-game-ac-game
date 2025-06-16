@@ -322,7 +322,19 @@ MonoBehaviour:
     m_ActionId: 5ab83017-a501-458a-8cfb-8805b24cc828
     m_ActionName: 'Game/Look[/Mouse/delta]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 759256178}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: HandleAttacking
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: f59664dd-8f1c-494b-aae0-4544fc74dd5c
     m_ActionName: 'Game/Attack[/Mouse/leftButton,/Keyboard/enter]'
   - m_PersistentCalls:
@@ -638,9 +650,9 @@ MonoBehaviour:
   Yposition: -2.77
   minVerticalAngle: -20
   maxVerticalAngle: 45
-  framingOffset: {x: 0, y: 1}
   mouseSensitivity: 0.07
   controllerSensitivity: 0.29
+  framingOffset: {x: 0, y: 1}
 --- !u!114 &989482500
 MonoBehaviour:
   m_ObjectHideFlags: 0
