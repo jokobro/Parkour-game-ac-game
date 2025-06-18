@@ -93,6 +93,7 @@ public class PlayerController : MonoBehaviour
     {
         if (context.performed)
         {
+            animator.SetTrigger("PressedAttackButton");
             Debug.Log("Ik val aan");
         }
     }
