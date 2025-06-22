@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     private PlayerInput playerInput;
     private InputAction moveAction;
     private InputAction sprintAction;
-
+    private InputAction attackAction;
 
     [Header("Player settings")]
     [SerializeField] private float walkSpeed = 2f;
@@ -22,6 +22,10 @@ public class PlayerController : MonoBehaviour
     private bool isSprinting;
     private bool sprintHeld;
 
+
+    private int currentAttack = 0;
+    private float LastAttackTime;
+    [SerializeField] private float comboResetTime = 1.2f;
     private void Awake()
     {
         playerInput = new PlayerInput();
@@ -30,6 +34,9 @@ public class PlayerController : MonoBehaviour
         sprintAction = playerInput.Game.Sprint;
         playerInput.Game.Move.performed += ctx => inputMovement = ctx.ReadValue<Vector2>();
         playerInput.Game.Move.canceled += ctx => inputMovement = Vector2.zero;
+
+        attackAction = playerInput.Game.Attack;
+        attackAction.performed += HandleAttacking;
     }
 
     private void OnEnable()
@@ -40,6 +47,7 @@ public class PlayerController : MonoBehaviour
     private void OnDisable()
     {
         playerInput.Game.Disable();
+        attackAction.performed -= HandleAttacking;
     }
     private void Start()
     {
@@ -91,10 +99,22 @@ public class PlayerController : MonoBehaviour
 
     public void HandleAttacking(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if(!context.performed) return;
+
+        float timeSinceLastAttack = Time.time - LastAttackTime;
+
+        if(timeSinceLastAttack > comboResetTime)
         {
-            animator.SetTrigger("PressedAttackButton");
-            Debug.Log("Ik val aan");
+            currentAttack = 0;
+        }
+
+        LastAttackTime = Time.time;
+        currentAttack++;
+
+        if (currentAttack > 3) currentAttack = 1;
+        {
+            animator.SetTrigger($"Attack{currentAttack}Trigger");
+            Debug.Log($"Aanval: Attack{currentAttack}");
         }
     }
 }
