@@ -333,7 +333,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""ea1d037d-5fe9-4b88-936b-9a9e21df0a7c"",
-                    ""path"": ""<Keyboard>/enter"",
+                    ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
