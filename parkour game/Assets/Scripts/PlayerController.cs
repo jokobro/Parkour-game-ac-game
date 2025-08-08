@@ -117,6 +117,13 @@ public class PlayerController : MonoBehaviour
 
     public void HandleAttacking(InputAction.CallbackContext context)
     {
+        Debug.Log("play animation");
+        animator.SetTrigger("AttackTrigger");
+    }
+    
+    
+    /*public void HandleAttacking(InputAction.CallbackContext context)
+    {
       // Zorg dat de actie alleen wordt verwerkt als hij echt uitgevoerd is
         if (!context.performed) return;
 
@@ -143,7 +150,5 @@ public class PlayerController : MonoBehaviour
 
         // Debug-log om te zien welke aanval wordt uitgevoerd
         Debug.Log($"Aanval: Attack{currentAttack}");
-
-
-    }
+    }*/
 }
