@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,6 +27,10 @@ public class PlayerController : MonoBehaviour
     private int currentAttack = 0;
     private float LastAttackTime;
     [SerializeField] private float comboResetTime = 1.2f;
+
+
+    [SerializeField] private List<GameObject> PickupObjects = new List<GameObject>();
+
     private void Awake()
     {
         playerInput = new PlayerInput();
@@ -41,7 +46,7 @@ public class PlayerController : MonoBehaviour
     {
         playerInput.Game.Enable();
     }
-    
+
     private void OnDisable()
     {
         playerInput.Game.Disable();
@@ -54,17 +59,33 @@ public class PlayerController : MonoBehaviour
         cameraController = Camera.main.GetComponent<CameraController>();
     }
 
+    public void PickupedObjects(int id, GameObject pickup)
+    {
+        switch (id)
+        {
+            case 0:
+                PickupObjects.Add(pickup);
+                pickup.SetActive(false);
+                break;
+        }
+    }
+
+
+
+
+
+
     private void Update()
     {
         // Lees de input van de speler (WASD of controllerstick)
         Vector3 moveInput = new Vector3(inputMovement.x, 0, inputMovement.y);
-        
+
         // Hoe sterk (groot) is de input? (0 = stilstand, 1 = volle input)
         float inputMagnitude = moveInput.magnitude;
-        
+
         // Check of de sprintknop wordt ingedrukt
         bool sprintButtonPressed = sprintAction.IsPressed();
-        
+
         // Detecteer of speler een controller gebruikt (meestal zachtere input)
         bool usingController = inputMagnitude > 0f && inputMagnitude < 0.99f;
 
@@ -120,8 +141,8 @@ public class PlayerController : MonoBehaviour
         Debug.Log("play animation");
         animator.SetTrigger("AttackTrigger");
     }
-    
-    
+
+
     /*public void HandleAttacking(InputAction.CallbackContext context)
     {
       // Zorg dat de actie alleen wordt verwerkt als hij echt uitgevoerd is
