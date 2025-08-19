@@ -1,0 +1,20 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UiToolkit/uss.uss?fileID=7433441132597879392&amp;guid=4e97b23e9933e574bb87da7b926278bf&amp;type=3#uss" />
+    <engine:VisualElement name="MainMenu" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/19ccfec6-c786-4701-a385-f538515c762f.png?fileID=21300000&amp;guid=804cf0cf6249ae74db10feed39ec843b&amp;type=3#19ccfec6-c786-4701-a385-f538515c762f&quot;);">
+        <engine:Button text="Quit" name="QuitButton" style="position: absolute; height: 58px; width: 342px; top: 995px; left: 10px; font-size: 47px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+        <engine:Button text="Continue&#10;" name="ContinueButton" style="position: absolute; height: 58px; width: 342px; top: 319px; left: 20px; font-size: 47px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+        <engine:Button text="Options&#10;" name="OptionsButton" style="position: absolute; height: 58px; width: 342px; top: 471px; left: 23px; font-size: 47px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+    </engine:VisualElement>
+    <engine:VisualElement name="Options" style="flex-grow: 1; position: absolute; height: 1084px; width: 1930px; background-image: url(&quot;project://database/Assets/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;);">
+        <engine:Button text="Credits&#10;" name="creditsButton" style="position: absolute; height: 58px; width: 342px; top: 683px; left: 36px; font-size: 47px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+        <engine:Button text="Sound&#10;" name="SoundButton" style="position: absolute; height: 58px; width: 342px; top: 462px; left: 39px; font-size: 47px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+        <engine:Button text="Video&#10;" name="VideoButton" style="position: absolute; height: 58px; width: 342px; top: 371px; left: 38px; font-size: 47px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+        <engine:Button text="Back&#10;" name="BackButton" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+        <engine:Button text="Controls&#10;" name="ControlsButton" style="position: absolute; height: 58px; width: 342px; top: 574px; left: 38px; font-size: 47px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+    </engine:VisualElement>
+    <engine:VisualElement name="Credits" style="flex-grow: 1; position: absolute; height: 1084px; width: 1930px; background-image: url(&quot;project://database/Assets/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;);">
+        <engine:Button text="Back&#10;" name="BackOptionsButton" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+        <engine:Label text="Credits" name="Label" style="-unity-text-align: upper-center; font-size: 62px;" />
+        <engine:Label text="Game made jochem veldhuizen" name="Label" style="font-size: 37px; position: absolute; top: 279px; left: 705px; right: 676px;" />
+    </engine:VisualElement>
+</engine:UXML>
