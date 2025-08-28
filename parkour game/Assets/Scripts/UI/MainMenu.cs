@@ -17,6 +17,9 @@ public class MainMenu : MonoBehaviour
         {
             root.Q<VisualElement>("Options"),
             root.Q<VisualElement>("Credits"),
+            root.Q<VisualElement>("Sound"),
+            root.Q<VisualElement>("Video"),
+
         };
 
         HideAllPanels();
@@ -27,14 +30,17 @@ public class MainMenu : MonoBehaviour
     {
         RegisterButton("ContinueButton", _ => StartFreshGame());
         RegisterButton("QuitButton", _ => Application.Quit());
-        RegisterButton("OptionsButton", _ => ShowPanel("Options"));
+
         RegisterButton("BackOptionsButton", _ => ShowPanel("Options"));
         RegisterButton("creditsButton", _ => ShowPanel("Credits"));
+        RegisterButton("SoundButton", _ => ShowPanel("Sound"));
+        RegisterButton("VideoButton", _ => ShowPanel("Video"));
+        //return buttons
         RegisterButton("BackButton", _ => HideAllPanels());
-
-
-
-
+        RegisterButton("OptionsButton", _ => ShowPanel("Options"));
+        RegisterButton("BackSoundButton", _ => ShowPanel("Options"));
+        RegisterButton("CloseVideoOption", _ => ShowPanel("Options"));
+        
 
         /*RegisterButton("ControlsButton", _ => ShowPanel("Controls"));
         
