@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -11,14 +12,12 @@ public class MainMenu : MonoBehaviour
     private UIDocument UIDocument;
     private VisualElement[] overlayPanels;
     private Dictionary<Button, EventCallback<ClickEvent>> registeredCallbacks = new();
-
+    // Input mode tracking
+    private InputDeviceDetector.InputMode lastInputMode = InputDeviceDetector.InputMode.None;
     // Navigatie state
     private bool wasDown, wasUp;
     private float lastNavigationTime = 0f;
     private const float NAVIGATION_COOLDOWN = 0.2f;
-
-    // Input mode tracking
-    private InputDeviceDetector.InputMode lastInputMode = InputDeviceDetector.InputMode.None;
 
     private void Awake()
     {
@@ -50,7 +49,6 @@ public class MainMenu : MonoBehaviour
         {
             FocusTopButton();
         }
-
         EnhanceButtonFeedback();
     }
 
@@ -75,7 +73,7 @@ public class MainMenu : MonoBehaviour
     private void SetupButtons()
     {
         RegisterButton("ContinueButton", _ => StartGame());
-        RegisterButton("QuitButton", _ => Application.Quit());
+        RegisterButton("QuitButton", _ => QuitGame());
 
         RegisterButton("creditsButton", _ => ShowPanel("Credits"));
         RegisterButton("SoundButton", _ => ShowPanel("Sound"));
@@ -94,6 +92,12 @@ public class MainMenu : MonoBehaviour
     private void StartGame()
     {
         SceneManager.LoadScene("Test sceme");
+    }
+
+    private void QuitGame()
+    {
+        SettingsMenu.Instance.SaveVolume();
+        Application.Quit();
     }
 
     private void ShowPanel(string panelName)
@@ -518,11 +522,6 @@ public class MainMenu : MonoBehaviour
                     focused.SendEvent(clickEvent);
                 }
             }
-        }
-
-        if (Gamepad.current.buttonEast.wasPressedThisFrame)
-        {
-            HideAllPanels();
         }
     }
 }
