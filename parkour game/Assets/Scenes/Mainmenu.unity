@@ -224,7 +224,7 @@ GameObject:
   m_Component:
   - component: {fileID: 405602907}
   m_Layer: 0
-  m_Name: AudioManger
+  m_Name: Audio Sources
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -727,5 +727,5 @@ SceneRoots:
   m_Roots:
   - {fileID: 961739753}
   - {fileID: 371236999}
-  - {fileID: 2114546682}
   - {fileID: 405602907}
+  - {fileID: 2114546682}

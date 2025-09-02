@@ -17,6 +17,14 @@
         <engine:Label text="Credits" name="Label" style="-unity-text-align: upper-center; font-size: 62px;" />
         <engine:Label text="Game made jochem veldhuizen" name="Label" style="font-size: 37px; position: absolute; top: 279px; left: 705px; right: 676px;" />
     </engine:VisualElement>
+    <engine:VisualElement name="Video" style="flex-grow: 1; position: absolute; height: 1084px; width: 1930px; background-image: url(&quot;project://database/Assets/Assets/UI/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;); top: -3px; left: -3px;">
+        <engine:Button text="Back&#10;" name="CloseVideo" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+        <engine:Label text="Video" name="Video" style="-unity-text-align: upper-center; font-size: 62px;" />
+        <engine:DropdownField label="Resolution" choices="3840 X 2160,2560 X 1440,1920 X 1080,1366 X 768,1280 X 720" name="ResolutionDropDown" style="position: absolute; top: 354px; left: 163px; height: 71px; width: 657px; font-size: 29px;" />
+        <engine:DropdownField label="Quality" choices="Very Low,Low,Medium,High,Very High,Ultra" name="QualityDropDown" style="position: absolute; top: 491px; left: 162px; height: 71px; width: 657px; font-size: 29px;" />
+        <engine:DropdownField label="fullscreen" choices="3840 X 2160,2560 X 1440,1920 X 1080,1366 X 768,1280 X 720" name="FullscreenDropDown" style="position: absolute; top: 619px; left: 161px; height: 71px; width: 657px; font-size: 29px;" />
+        <engine:DropdownField label="renderscale" choices="3840 X 2160,2560 X 1440,1920 X 1080,1366 X 768,1280 X 720" name="RenderScaleDropDown" style="position: absolute; top: 744px; left: 170px; height: 71px; width: 657px; font-size: 29px;" />
+    </engine:VisualElement>
     <engine:VisualElement name="Controls" style="flex-grow: 1; position: absolute; height: 1084px; width: 1930px; background-image: url(&quot;project://database/Assets/Assets/UI/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;); top: 0; left: 0;">
         <engine:Button text="Back&#10;" name="CloseControls" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
         <engine:Label text="Video" name="Video" style="-unity-text-align: upper-center; font-size: 62px;" />
@@ -26,11 +34,5 @@
         <engine:Label text="Sound" name="Sound" style="-unity-text-align: upper-center; font-size: 62px;" />
         <engine:Slider label="Music" value="4.03" high-value="1" low-value="0" name="MusicSlider" fill="false" style="position: absolute; top: 332px; left: 304px; width: 998px; height: 76px; font-size: 45px;" />
         <engine:Slider label="SFX" value="4.03" high-value="1" low-value="0" name="SFXSlider" fill="false" style="position: absolute; top: 495px; left: 309px; width: 998px; height: 76px; font-size: 45px;" />
-    </engine:VisualElement>
-    <engine:VisualElement name="Video" style="flex-grow: 1; position: absolute; height: 1084px; width: 1930px; background-image: url(&quot;project://database/Assets/Assets/UI/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;); top: 2px; left: 0;">
-        <engine:Button text="Back&#10;" name="CloseVideo" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
-        <engine:Label text="Video" name="Video" style="-unity-text-align: upper-center; font-size: 62px;" />
-        <engine:DropdownField label="Resolution" choices="3840 X 2160,2560 X 1440,1920 X 1080,1366 X 768,1280 X 720" name="ResolutionDropDown" style="position: absolute; top: 354px; left: 163px; height: 71px; width: 657px; font-size: 29px;" />
-        <engine:DropdownField label="Quality" choices="low,high ,medium" name="QualityDropDown" style="position: absolute; top: 491px; left: 162px; height: 71px; width: 657px; font-size: 29px;" />
     </engine:VisualElement>
 </engine:UXML>

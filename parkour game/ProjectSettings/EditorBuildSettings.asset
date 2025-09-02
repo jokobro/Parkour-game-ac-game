@@ -11,9 +11,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Test sceme.unity
     guid: 1525eea374a8d5b4d9f9f4b59faf0085
-  - enabled: 1
-    path: Assets/Scenes/test scenen geluid ui.unity
-    guid: d2c8c87636c917145b838a5e51b66fcf
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 8a7bb2a282734b840b7092be456946f6, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 7225056197889114b98789c4ab1dade6, type: 3}
