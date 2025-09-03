@@ -36,7 +36,6 @@ public class SettingsMenu : MonoBehaviour
         musicSlider = root.Q<Slider>("MusicSlider");
         sfxSlider = root.Q<Slider>("SFXSlider");
 
-
         musicDecreaseBtn = root.Q<Button>("MusicDecreaseBtn");
         musicIncreaseBtn = root.Q<Button>("MusicIncreaseBtn");
         sfxDecreaseBtn = root.Q<Button>("SFXDecreaseBtn");
@@ -87,8 +86,6 @@ public class SettingsMenu : MonoBehaviour
         };
     }
 
-
-
     private void SetupResolutionControls()
     {
         var availableResolutions = Screen.resolutions
@@ -115,7 +112,6 @@ public class SettingsMenu : MonoBehaviour
             supportedResolutions = availableResolutions.Take(5).ToList();
         }
 
-
         Vector2Int currentRes = new Vector2Int(Screen.currentResolution.width, Screen.currentResolution.height);
         currrentResolutionIndex = supportedResolutions.FindIndex(r => r == currentRes);
         if (currrentResolutionIndex == -1) currrentResolutionIndex = 0;
@@ -136,7 +132,6 @@ public class SettingsMenu : MonoBehaviour
 
     }
 
-
     private void SetupQualityControls()
     {
         qualityField.choices = QualitySettings.names.ToList();
@@ -148,7 +143,6 @@ public class SettingsMenu : MonoBehaviour
             SetQuality(index);
         });
     }
-
 
     private void ChangeResolution()
     {
