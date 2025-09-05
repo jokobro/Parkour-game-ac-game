@@ -70,3 +70,83 @@ Button:active {
     -unity-text-outline-color: rgba(255, 0, 0, 0.8);
     background-color: rgba(255, 0, 0, 0.2);
 }
+
+
+
+
+
+
+
+
+
+/* Responsive menu button base class */
+.responsive-menu-button {
+    position: absolute;
+    width: 17.81%;
+    height: 5.37%;
+    font-size: 4.35%;
+    -unity-text-align: middle-left;
+    background-color: rgba(188, 188, 188, 0.72);
+}
+
+/* Specific button positions */
+.continue-button-pos {
+    left: 1.04%;
+    top: 29.54%;
+}
+
+.options-button-pos {
+    left: 1.20%;
+    top: 43.61%;
+}
+
+.quit-button-pos {
+    left: 0.52%;
+    top: 92.13%;
+}
+
+/* Additional button positions - voeg toe als je meer buttons hebt */
+.start-button-pos {
+    left: 1.04%;
+    top: 15%;
+}
+
+.load-button-pos {
+    left: 1.04%;
+    top: 36%;
+}
+
+.settings-button-pos {
+    left: 1.04%;
+    top: 57%;
+}
+
+/* Responsive settings menu elements */
+.settings-panel {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    left: 10%;
+    top: 10%;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+}
+
+.settings-slider {
+    width: 60%;
+    height: 4%;
+    margin-top: 2%;
+}
+
+.settings-label {
+    font-size: 3%;
+    color: var(--primary-color);
+    margin-bottom: 1%;
+}
+
+.settings-button {
+    width: 15%;
+    height: 4%;
+    font-size: 3%;
+}
+

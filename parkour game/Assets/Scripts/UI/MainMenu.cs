@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -96,7 +95,7 @@ public class MainMenu : MonoBehaviour
 
     private void QuitGame()
     {
-        SettingsMenu.Instance.SaveVolume();
+        SettingsMenu.Instance.SaveSettings();
         Application.Quit();
     }
 
