@@ -12,37 +12,43 @@
         <engine:Button text="Credits&#10;" name="creditsButton" style="position: absolute; height: 58px; width: 342px; top: 683px; left: 36px; font-size: 47px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
         <engine:Button text="Back&#10;" name="BackButton" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
     </engine:VisualElement>
-    <engine:VisualElement name="Credits" style="flex-grow: 1; position: absolute; height: 1080px; width: 1920px; background-image: url(&quot;project://database/Assets/Assets/UI/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;);">
-        <engine:Button text="Back&#10;" name="CloseCredits" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
-        <engine:Label text="Credits" name="Label" style="-unity-text-align: upper-center; font-size: 62px;" />
-        <engine:Label text="Game made jochem veldhuizen" name="Label" style="font-size: 37px; position: absolute; top: 279px; left: 705px; right: 676px;" />
-    </engine:VisualElement>
-    <engine:VisualElement name="Video" style="flex-grow: 1; position: absolute; height: 1080px; width: 1920px; background-image: url(&quot;project://database/Assets/Assets/UI/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;); top: -4px; left: -3px;">
+    <engine:VisualElement name="Video" style="flex-grow: 1; position: absolute; height: 1080px; width: 1920px; background-image: url(&quot;project://database/Assets/Assets/UI/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;); top: 0; left: -3px;">
+        <engine:VisualElement name="ResolutionContainer" style="flex-grow: 1; position: absolute; height: 110px; width: 620px; top: 375px; left: 225px;">
+            <engine:Button text="&lt;" name="ResolutionPrevBtn" style="position: absolute; top: 30px; left: 60px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px; -unity-background-image-tint-color: rgb(255, 255, 255);" />
+            <engine:Label text="Label" name="ResolutionLabel" style="position: absolute; height: 75px; top: 20px; left: 120px; width: 317px; font-size: 53px; -unity-text-align: upper-center;" />
+            <engine:Button text="&gt;" name="ResolutionNextBtn" style="position: absolute; top: 30px; left: 460px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px;" />
+        </engine:VisualElement>
+        <engine:VisualElement name="QaulityContainer" style="flex-grow: 1; position: absolute; height: 110px; width: 618px; top: 525px; left: 225px;">
+            <engine:Button text="&lt;" name="QaulityPrevBtn" style="position: absolute; top: 30px; left: 60px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px; -unity-background-image-tint-color: rgb(255, 255, 255);" />
+            <engine:Label text="Label" name="QaulityLabel" style="position: absolute; height: 75px; top: 20px; left: 120px; width: 317px; font-size: 53px; -unity-text-align: upper-center;" />
+            <engine:Button text="&gt;" name="QualityNextBtn" style="position: absolute; top: 30px; left: 460px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px;" />
+        </engine:VisualElement>
         <engine:Button text="Back&#10;" name="CloseVideo" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
-        <engine:Label text="Video" name="Video" style="-unity-text-align: upper-center; font-size: 62px;" />
-        <engine:DropdownField label="Quality" choices="Very Low,Low,Medium,High,Very High,Ultra" name="QualityDropDown" style="position: absolute; top: 510px; left: 533px; height: 71px; width: 657px; font-size: 29px;" />
-        <engine:Button text="&lt;" name="ResolutionPrevBtn" style="position: absolute; top: 292px; left: 551px; width: 89px; background-color: rgb(255, 254, 254); color: rgba(0, 0, 0, 0.9); font-size: 42px; height: 48px;" />
-        <engine:Label text="Label" name="ResolutionLabel" style="position: absolute; height: 75px; top: 283px; left: 663px; width: 317px; font-size: 53px; -unity-text-align: upper-center;" />
-        <engine:Button text="&gt;" name="ResolutionNextBtn" style="position: absolute; top: 301px; left: 1004px; width: 91px; background-color: rgb(255, 254, 254); color: rgba(0, 0, 0, 0.9); font-size: 42px; height: 48px;" />
+        <engine:Label text="Video" name="Video" style="-unity-text-align: upper-center; font-size: 62px; left: 10px;" />
+    </engine:VisualElement>
+    <engine:VisualElement name="Sound" style="flex-grow: 1; position: absolute; height: 1080px; width: 1920px; background-image: url(&quot;project://database/Assets/Assets/UI/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;); top: auto; left: auto;">
+        <engine:Label text="Sound" name="SoundLabel" style="-unity-text-align: upper-center; font-size: 62px;" />
+        <engine:VisualElement name="MusicVolumeContainer" style="flex-grow: initial; position: absolute; height: 70px; width: 1445px; top: 380px; justify-content: space-around; align-items: auto; flex-direction: column; left: 85px; -unity-text-align: middle-left; flex-shrink: 1;">
+            <engine:Label text="MUSIC VOLUME" name="MusicLabel" style="position: absolute; height: 60px; width: 390px; top: 0; left: 100px; font-size: 50px;" />
+            <engine:Button text="&lt;" name="MusicDecreaseBtn" style="position: absolute; top: 5px; left: 810px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px; -unity-text-align: middle-center;" />
+            <engine:Slider value="4.03" high-value="1" low-value="0" name="MusicSlider" fill="false" direction="Horizontal" inverted="false" show-input-field="false" style="position: absolute; top: 20px; left: 860px; width: 475px; height: 30px; font-size: 45px;" />
+            <engine:Button text="&gt;" name="MusicIncreaseBtn" style="position: absolute; top: 5px; left: 1350px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px;" />
+        </engine:VisualElement>
+        <engine:VisualElement name="SFXVolumeContainer" style="flex-grow: 1; position: absolute; width: 1445px; height: 70px; left: 85px; top: 500px;">
+            <engine:Label text="SOUND FX VOLUME" name="SFXLabel" style="position: absolute; height: 60px; width: 480px; top: 0; left: 100px; font-size: 50px;" />
+            <engine:Button text="&lt;" name="SFXDecreaseBtn" style="position: absolute; top: 5px; left: 810px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px; -unity-background-image-tint-color: rgba(255, 255, 255, 0);" />
+            <engine:Slider value="4.03" high-value="1" low-value="0" name="SFXSlider" fill="false" style="position: absolute; top: 20px; left: 860px; width: 475px; height: 30px; font-size: 45px;" />
+            <engine:Button text="&gt;" name="SFXIncreaseBtn" style="position: absolute; top: 5px; left: 1350px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px; -unity-background-image-tint-color: rgba(255, 255, 255, 0);" />
+        </engine:VisualElement>
+        <engine:Button text="Back&#10;" name="CloseSound" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
     </engine:VisualElement>
     <engine:VisualElement name="Controls" style="flex-grow: 1; position: absolute; height: 1080px; width: 1920px; background-image: url(&quot;project://database/Assets/Assets/UI/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;); top: 0; left: 0;">
         <engine:Button text="Back&#10;" name="CloseControls" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
         <engine:Label text="Video" name="Video" style="-unity-text-align: upper-center; font-size: 62px;" />
     </engine:VisualElement>
-    <engine:VisualElement name="Sound" style="flex-grow: 1; position: absolute; height: 1080px; width: 1920px; background-image: url(&quot;project://database/Assets/Assets/UI/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;); top: auto; left: auto;">
-        <engine:VisualElement name="MusicVolumeContainer" style="flex-grow: 1; position: absolute;">
-            <engine:Label text="MUSIC VOLUME" name="MusicLabel" style="position: absolute; height: 60px; width: 390px; top: 375px; left: 140px; font-size: 50px;" />
-            <engine:Button text="&lt;" name="MusicDecreaseBtn" style="position: absolute; top: 380px; left: 850px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px; -unity-text-align: middle-center;" />
-            <engine:Slider value="4.03" high-value="1" low-value="0" name="MusicSlider" fill="false" direction="Horizontal" inverted="false" show-input-field="false" style="position: absolute; top: 394px; left: 900px; width: 475px; height: 30px; font-size: 45px;" />
-            <engine:Button text="&gt;" name="MusicIncreaseBtn" style="position: absolute; top: 380px; left: 1390px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px;" />
-        </engine:VisualElement>
-        <engine:VisualElement name="SFXVolumeContainer" style="flex-grow: 1; position: absolute;">
-            <engine:Label text="SOUND FX VOLUME" name="SFXLabel" style="position: absolute; height: 60px; width: 480px; top: 490px; left: 140px; font-size: 50px;" />
-            <engine:Button text="&lt;" name="SFXDecreaseBtn" style="position: absolute; top: 495px; left: 850px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px; -unity-background-image-tint-color: rgba(255, 255, 255, 0);" />
-            <engine:Slider value="4.03" high-value="1" low-value="0" name="SFXSlider" fill="false" style="position: absolute; top: 510px; left: 900px; width: 475px; height: 30px; font-size: 45px;" />
-            <engine:Button text="&gt;" name="SFXIncreaseBtn" style="position: absolute; top: 495px; left: 1390px; width: 40px; background-color: rgba(255, 254, 254, 0); color: rgba(0, 0, 0, 0.9); font-size: 60px; height: 50px; -unity-background-image-tint-color: rgba(255, 255, 255, 0);" />
-        </engine:VisualElement>
-        <engine:Label text="Sound" name="SoundLabel" style="-unity-text-align: upper-center; font-size: 62px;" />
-        <engine:Button text="Back&#10;" name="CloseSound" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+    <engine:VisualElement name="Credits" style="flex-grow: 1; position: absolute; height: 1080px; width: 1920px; background-image: url(&quot;project://database/Assets/Assets/UI/abstract-white-background-modern-design-600nw-2478912715%20(1).jpg?fileID=2800000&amp;guid=ba7ee1e08fd4e794dad7361d737d363c&amp;type=3#abstract-white-background-modern-design-600nw-2478912715 (1)&quot;);">
+        <engine:Button text="Back&#10;" name="CloseCredits" style="position: absolute; height: 43px; width: 141px; top: 1014px; left: 22px; font-size: 45px; -unity-text-align: middle-left; background-color: rgba(188, 188, 188, 0.72);" />
+        <engine:Label text="Credits" name="Label" style="-unity-text-align: upper-center; font-size: 62px;" />
+        <engine:Label text="Game made jochem veldhuizen" name="Label" style="font-size: 37px; position: absolute; top: 279px; left: 705px; right: 676px;" />
     </engine:VisualElement>
 </engine:UXML>

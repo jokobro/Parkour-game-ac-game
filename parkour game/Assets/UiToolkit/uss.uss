@@ -71,14 +71,6 @@ Button:active {
     background-color: rgba(255, 0, 0, 0.2);
 }
 
-
-
-
-
-
-
-
-
 /* Responsive menu button base class */
 .responsive-menu-button {
     position: absolute;
@@ -150,3 +142,50 @@ Button:active {
     font-size: 3%;
 }
 
+/* AC Syndicate style STABLE container highlighting - GEEN KNIPPEREN! */
+.ac-selected-stable {
+    border-color: rgb(220, 20, 20);
+    border-width: 3px;
+    background-color: rgba(220, 20, 20, 0.15);
+    /* BELANGRIJK: Lange transition zodat het stabiel blijft */
+    transition-duration: 0.3s;
+    transition-timing-function: ease-out;
+}
+
+.ac-slider-container {
+    /* Extra styling voor slider containers */
+    border-style: solid;
+}
+
+/* Hover effect voor muis (apart van controller selection) */
+.ac-selected-stable:hover {
+    background-color: rgba(220, 20, 20, 0.2);
+}
+
+
+
+
+    /* Controller highlighting - alleen actief in controller mode */
+.controller-selected {
+    border-color: rgb(220, 20, 20);
+    border-width: 3px;
+    background-color: rgba(220, 20, 20, 0.15);
+    border-style: solid;
+    transition-duration: 0.3s;
+    box-shadow: 0 0 8px rgba(220, 20, 20, 0.6);
+}
+
+/* Mouse hover highlighting - alleen actief in mouse mode */
+.mouse-hover {
+    border-color: rgb(220, 20, 20);
+    border-width: 2px;
+    background-color: rgba(220, 20, 20, 0.1);
+    border-style: solid;
+    transition-duration: 0.2s;
+    box-shadow: 0 0 6px rgba(220, 20, 20, 0.4);
+}
+
+/* Hover state voor containers - werkt ook voor Sound containers! */
+.mouse-hover:hover {
+    background-color: rgba(220, 20, 20, 0.2);
+}
