@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -20,7 +19,7 @@ public class MainMenu : MonoBehaviour
     private enum InputMode { Controller, Mouse }
     private InputMode currentInputMode = InputMode.Mouse;
     private float lastInputTime = 0f;
-    private const float INPUT_DELAY = 0.15f;
+    private const float INPUT_DELAY = 0.12f; // Snellere response voor AC Syndicate feel
 
     // Controller input
     private bool wasUp, wasDown, wasLeft, wasRight;
@@ -85,6 +84,7 @@ public class MainMenu : MonoBehaviour
         SetupResolutionSettings();
         SetupQualitySettings();
         SetupMouseHoverEvents();
+        SetupACButtonStyling(); // AC Syndicate styling
 
         // Start met main menu
         ShowMainMenu();
@@ -93,7 +93,10 @@ public class MainMenu : MonoBehaviour
         // Start in mouse mode
         SwitchToInputMode(InputMode.Mouse);
 
-        Debug.Log("Main Menu Setup Complete - Mouse Mode Active");
+        // DEBUG: Log alle UI elementen
+        LogAllUIElements();
+
+        Debug.Log("🎮 AC Syndicate Main Menu Setup Complete");
     }
 
     void FindAllPanels()
@@ -110,15 +113,48 @@ public class MainMenu : MonoBehaviour
             root.Q<VisualElement>("Controls")
         };
 
-        // Verstop alle panels
+        // Verstop alle panels (alleen als ze bestaan)
         HideAllPanels();
+    }
+
+    // AC Syndicate style - verbeterde button styling
+    void SetupACButtonStyling()
+    {
+        var root = uiDocument.rootVisualElement;
+        var allButtons = root.Query<Button>().ToList();
+
+        foreach (var button in allButtons)
+        {
+            // BEHOUD focusable voor controller functionaliteit
+            button.focusable = true;
+
+            // Add our custom AC Syndicate button class
+            button.AddToClassList("ac-button");
+
+            // Voor main menu buttons, voeg extra class toe
+            if (button.name == "ContinueButton" || button.name == "OptionsButton" || button.name == "QuitButton")
+            {
+                button.AddToClassList("main-menu-button");
+            }
+
+            // Voor navigation arrows
+            if (button.name.Contains("Prev") || button.name.Contains("Next"))
+            {
+                button.AddToClassList("nav-arrow-button");
+            }
+        }
+
+        Debug.Log($"✅ AC Syndicate styling applied to {allButtons.Count} buttons");
     }
 
     void SetupButtonClicks()
     {
-        // Main menu buttons
+        // Main menu buttons - MET DEBUG
         RegisterButtonClick("ContinueButton", StartGame);
-        RegisterButtonClick("OptionsButton", () => ShowPanel("Options"));
+        RegisterButtonClick("OptionsButton", () => {
+            Debug.Log("🎯 Options clicked - checking if panel exists...");
+            ShowPanel("Options");
+        });
         RegisterButtonClick("QuitButton", QuitGame);
 
         // Sub menu buttons
@@ -141,6 +177,11 @@ public class MainMenu : MonoBehaviour
         if (button != null)
         {
             button.clicked += onClick;
+            Debug.Log($"✅ Registered click for button: {buttonName}");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ Button not found: {buttonName}");
         }
     }
 
@@ -157,11 +198,12 @@ public class MainMenu : MonoBehaviour
             button.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
         }
 
-        // Containers (voor Sound panel)
+        // Sound containers (alleen als ze bestaan)
         var musicContainer = root.Q<VisualElement>("MusicVolumeContainer");
         var sfxContainer = root.Q<VisualElement>("SFXVolumeContainer");
 
-        // Quality container
+        // Video containers (alleen als ze bestaan)
+        var resolutionContainer = root.Q<VisualElement>("ResolutionContainer");
         var qualityContainer = root.Q<VisualElement>("qualityContainer");
 
         if (musicContainer != null)
@@ -176,20 +218,22 @@ public class MainMenu : MonoBehaviour
             sfxContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
         }
 
+        if (resolutionContainer != null)
+        {
+            resolutionContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
+            resolutionContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+        }
+
         if (qualityContainer != null)
         {
             qualityContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
             qualityContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
-            Debug.Log("Quality container mouse hover setup complete");
-        }
-        else
-        {
-            Debug.LogWarning("qualityContainer not found for mouse hover");
         }
     }
     #endregion
 
-    #region INPUT MODE MANAGEMENT - Controller vs Mouse
+    #region INPUT MODE MANAGEMENT - AC Syndicate Controller vs Mouse
+    // VERBETERDE input mode switching met betere visuele feedback
     void SwitchToInputMode(InputMode newMode)
     {
         if (currentInputMode == newMode) return;
@@ -200,15 +244,36 @@ public class MainMenu : MonoBehaviour
         ClearAllHighlights();
         ClearAllMouseHighlights();
 
+        var root = uiDocument.rootVisualElement;
+        var controllerHint = root.Q<Label>("ControllerHint");
+
         if (currentInputMode == InputMode.Controller)
         {
-            // Controller mode: highlight current selection
-            HighlightCurrentElement();
-            Debug.Log("🎮 CONTROLLER MODE ACTIVE");
+            // Controller mode: highlight current selection MAAR ALLEEN ALS ER MEERDERE ELEMENTEN ZIJN
+            if (selectableElements.Count > 1)
+            {
+                HighlightCurrentElement();
+            }
+            else if (selectableElements.Count == 1)
+            {
+                // Voor panels met alleen een back button: geen automatische highlight
+                // De gebruiker moet expliciet navigeren om de button te selecteren
+                currentSelection = 0; // Zet selection klaar, maar highlight niet
+            }
+
+            if (controllerHint != null)
+            {
+                controllerHint.style.display = DisplayStyle.Flex;
+            }
+            Debug.Log("🎮 AC SYNDICATE CONTROLLER MODE ACTIVE");
         }
         else
         {
-            // Mouse mode: no controller highlights
+            // Mouse mode: hide controller hint
+            if (controllerHint != null)
+            {
+                controllerHint.style.display = DisplayStyle.None;
+            }
             Debug.Log("🖱️ MOUSE MODE ACTIVE");
         }
     }
@@ -223,7 +288,6 @@ public class MainMenu : MonoBehaviour
         if (element != null)
         {
             element.AddToClassList("mouse-hover");
-            Debug.Log($"Mouse hover: {element.name}");
         }
     }
 
@@ -249,22 +313,43 @@ public class MainMenu : MonoBehaviour
     }
     #endregion
 
-    #region AUDIO INSTELLINGEN
+    #region AUDIO INSTELLINGEN - GEFIXT VOOR CROSS-CONTAMINATION
     void SetupAudioSettings()
     {
         var root = uiDocument.rootVisualElement;
 
-        // Sliders
         var musicSlider = root.Q<Slider>("MusicSlider");
         var sfxSlider = root.Q<Slider>("SFXSlider");
 
+        // VERBETERD: Separate callbacks om cross-contamination te voorkomen
         if (musicSlider != null)
-            musicSlider.RegisterValueChangedCallback(evt => SetMusicVolume(evt.newValue));
+        {
+            musicSlider.RegisterValueChangedCallback(evt =>
+            {
+                SetMusicVolume(evt.newValue);
+                Debug.Log($"🎵 Music volume ONLY: {evt.newValue:F2}");
+            });
+            Debug.Log("✅ Music slider callback registered");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ MusicSlider not found in UXML");
+        }
 
         if (sfxSlider != null)
-            sfxSlider.RegisterValueChangedCallback(evt => SetSFXVolume(evt.newValue));
+        {
+            sfxSlider.RegisterValueChangedCallback(evt =>
+            {
+                SetSFXVolume(evt.newValue);
+                Debug.Log($"🔊 SFX volume ONLY: {evt.newValue:F2}");
+            });
+            Debug.Log("✅ SFX slider callback registered");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ SFXSlider not found in UXML");
+        }
 
-        // Volume buttons voor PC
         SetupVolumeButtons();
     }
 
@@ -272,12 +357,10 @@ public class MainMenu : MonoBehaviour
     {
         var root = uiDocument.rootVisualElement;
 
-        // Music volume +/- buttons
         var musicSlider = root.Q<Slider>("MusicSlider");
         RegisterButtonClick("MusicDecreaseBtn", () => ChangeSliderValue(musicSlider, -0.1f));
         RegisterButtonClick("MusicIncreaseBtn", () => ChangeSliderValue(musicSlider, 0.1f));
 
-        // SFX volume +/- buttons
         var sfxSlider = root.Q<Slider>("SFXSlider");
         RegisterButtonClick("SFXDecreaseBtn", () => ChangeSliderValue(sfxSlider, -0.1f));
         RegisterButtonClick("SFXIncreaseBtn", () => ChangeSliderValue(sfxSlider, 0.1f));
@@ -295,9 +378,12 @@ public class MainMenu : MonoBehaviour
     {
         if (audioMixer != null)
         {
-            // Converteer 0-1 naar decibels
             float dbValue = Mathf.Log10(Mathf.Clamp(volume, 0.0001f, 1f)) * 20f;
-            audioMixer.SetFloat("MusicVolume", dbValue);
+            bool success = audioMixer.SetFloat("MusicVolume", dbValue);
+            if (!success)
+            {
+                Debug.LogWarning("❌ Failed to set MusicVolume parameter in AudioMixer");
+            }
         }
     }
 
@@ -306,7 +392,11 @@ public class MainMenu : MonoBehaviour
         if (audioMixer != null)
         {
             float dbValue = Mathf.Log10(Mathf.Clamp(volume, 0.0001f, 1f)) * 20f;
-            audioMixer.SetFloat("SFXVolume", dbValue);
+            bool success = audioMixer.SetFloat("SFXVolume", dbValue);
+            if (!success)
+            {
+                Debug.LogWarning("❌ Failed to set SFXVolume parameter in AudioMixer");
+            }
         }
     }
     #endregion
@@ -314,11 +404,9 @@ public class MainMenu : MonoBehaviour
     #region RESOLUTIE INSTELLINGEN
     void SetupResolutionSettings()
     {
-        // Krijg ALLEEN resoluties die je monitor ondersteunt
         var supportedResolutions = Screen.resolutions;
         resolutions.Clear();
 
-        // Converteer naar onze List en remove duplicates
         HashSet<Vector2Int> uniqueResolutions = new HashSet<Vector2Int>();
         foreach (var res in supportedResolutions)
         {
@@ -326,21 +414,18 @@ public class MainMenu : MonoBehaviour
             uniqueResolutions.Add(resolution);
         }
 
-        // Sorteer van groot naar klein
         resolutions = uniqueResolutions.OrderByDescending(r => r.x * r.y).ToList();
 
-        // Vind huidige resolutie
         Vector2Int currentRes = new Vector2Int(Screen.currentResolution.width, Screen.currentResolution.height);
         currentResolutionIndex = resolutions.FindIndex(r => r == currentRes);
         if (currentResolutionIndex == -1) currentResolutionIndex = 0;
 
         UpdateResolutionText();
 
-        // Resolution change buttons
         RegisterButtonClick("ResolutionPrevBtn", () => ChangeResolution(-1));
         RegisterButtonClick("ResolutionNextBtn", () => ChangeResolution(1));
 
-        Debug.Log($"Found {resolutions.Count} supported resolutions for your monitor");
+        Debug.Log($"📺 Found {resolutions.Count} resolutions");
     }
 
     void ChangeResolution(int direction)
@@ -353,7 +438,7 @@ public class MainMenu : MonoBehaviour
         Screen.SetResolution(newRes.x, newRes.y, FullScreenMode.FullScreenWindow);
 
         UpdateResolutionText();
-        Debug.Log($"Resolution changed to: {newRes.x}x{newRes.y}");
+        Debug.Log($"📺 Resolution: {newRes.x}x{newRes.y}");
     }
 
     void UpdateResolutionText()
@@ -367,19 +452,19 @@ public class MainMenu : MonoBehaviour
     }
     #endregion
 
-    #region QUALITY INSTELLINGEN
+    #region QUALITY INSTELLINGEN - GEFIXT VOOR BEIDE SPELLINGEN
     void SetupQualitySettings()
     {
-        // Krijg alle beschikbare quality levels
         currentQualityIndex = QualitySettings.GetQualityLevel();
-
         UpdateQualityText();
 
-        // Quality change buttons - GEFIXTE NAMEN
-        RegisterButtonClick("QaulityPrevBtn", () => ChangeQuality(-1));    // QaulityPrevBtn
-        RegisterButtonClick("QualityNextBtn", () => ChangeQuality(1));     // QualityNextBtn blijft goed
+        // BEIDE SPELLINGEN PROBEREN VOOR BACKWARDS COMPATIBILITY
+        RegisterButtonClick("QualityPrevBtn", () => ChangeQuality(-1));
+        RegisterButtonClick("QaulityPrevBtn", () => ChangeQuality(-1));  // Oude typo versie
+        RegisterButtonClick("QualityNextBtn", () => ChangeQuality(1));
+        RegisterButtonClick("QaulityNextBtn", () => ChangeQuality(1));   // Oude typo versie
 
-        Debug.Log($"Quality levels available: {string.Join(", ", QualitySettings.names)}");
+        Debug.Log($"🎨 Quality levels: {string.Join(", ", QualitySettings.names)}");
     }
 
     void ChangeQuality(int direction)
@@ -390,34 +475,32 @@ public class MainMenu : MonoBehaviour
         QualitySettings.SetQualityLevel(currentQualityIndex);
         UpdateQualityText();
 
-        Debug.Log($"Quality changed to: {QualitySettings.names[currentQualityIndex]}");
+        Debug.Log($"🎨 Quality: {QualitySettings.names[currentQualityIndex]}");
     }
 
     void UpdateQualityText()
     {
-        // Gebruik de correcte naam uit je UXML (QaulityLabel - met foutje in spelling)
         var qualityLabel = uiDocument.rootVisualElement.Q<Label>("QaulityLabel");
 
         if (qualityLabel == null)
         {
-            Debug.LogWarning("QaulityLabel not found! Check if it exists in qualityContainer");
+            Debug.LogWarning("QaulityLabel not found!");
             return;
         }
 
         if (currentQualityIndex < QualitySettings.names.Length)
         {
             qualityLabel.text = QualitySettings.names[currentQualityIndex];
-            Debug.Log($"Quality text updated to: {QualitySettings.names[currentQualityIndex]}");
         }
     }
     #endregion
 
-    #region PANEL MANAGEMENT - Welk scherm wordt getoond
+    #region PANEL MANAGEMENT - VERBETERDE ERROR HANDLING
     void ShowMainMenu()
     {
         HideAllPanels();
         SetupMainMenuElements();
-        Debug.Log("Showing Main Menu");
+        Debug.Log("🏠 Main Menu Active");
     }
 
     void ShowPanel(string panelName)
@@ -427,14 +510,17 @@ public class MainMenu : MonoBehaviour
         var panel = uiDocument.rootVisualElement.Q<VisualElement>(panelName);
         if (panel != null)
         {
-            // Toon het panel
             panel.style.display = DisplayStyle.Flex;
             panel.style.visibility = Visibility.Visible;
-
-            // Setup welke elementen je kunt selecteren
             SetupPanelElements(panelName);
-
-            Debug.Log($"Showing panel: {panelName}");
+            Debug.Log($"📋 Panel Active: {panelName}");
+        }
+        else
+        {
+            Debug.LogError($"❌ Panel '{panelName}' not found in UXML! Available panels should be created in UI Builder.");
+            Debug.LogError($"💡 TIP: Open UI Builder and add a VisualElement with name='{panelName}' to your UXML file.");
+            // Fallback: ga terug naar main menu
+            ShowMainMenu();
         }
     }
 
@@ -451,13 +537,11 @@ public class MainMenu : MonoBehaviour
     }
     #endregion
 
-    #region CONTROLLER NAVIGATION - Rode highlighting en navigatie
+    #region CONTROLLER NAVIGATION - AC Syndicate Style VERBETERD
     void SetupMainMenuElements()
     {
         selectableElements.Clear();
-        var root = uiDocument.rootVisualElement;
 
-        // Main menu buttons
         AddButtonElement("ContinueButton", "Continue");
         AddButtonElement("OptionsButton", "Options");
         AddButtonElement("QuitButton", "Quit");
@@ -469,6 +553,7 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+    // VERBETERDE panel setup voor betere visuele feedback
     void SetupPanelElements(string panelName)
     {
         selectableElements.Clear();
@@ -490,11 +575,23 @@ public class MainMenu : MonoBehaviour
                 break;
         }
 
-        currentSelection = 0;
-        if (currentInputMode == InputMode.Controller)
+        // VERBETERD: Alleen highlight als we in controller mode zijn EN er meerdere elementen zijn
+        if (selectableElements.Count > 1)
         {
-            HighlightCurrentElement();
+            currentSelection = 0;
+            if (currentInputMode == InputMode.Controller)
+            {
+                HighlightCurrentElement();
+            }
         }
+        else if (selectableElements.Count == 1)
+        {
+            // Voor panels met alleen back button: selection ready maar geen highlight
+            currentSelection = 0;
+            // Geen automatische highlight!
+        }
+
+        Debug.Log($"📋 Panel '{panelName}' setup: {selectableElements.Count} selectable elements");
     }
 
     void SetupOptionsElements()
@@ -510,48 +607,86 @@ public class MainMenu : MonoBehaviour
     {
         var root = uiDocument.rootVisualElement;
 
-        // Volume sliders met containers (voor rode highlighting)
+        // Music Volume - ISOLATED SETUP
         var musicSlider = root.Q<Slider>("MusicSlider");
         var musicContainer = root.Q<VisualElement>("MusicVolumeContainer");
         if (musicSlider != null)
         {
             selectableElements.Add(new MenuElement("Music Volume", musicSlider, musicContainer));
+            Debug.Log("✅ Music Volume container isolated");
         }
 
+        // SFX Volume - ISOLATED SETUP
         var sfxSlider = root.Q<Slider>("SFXSlider");
         var sfxContainer = root.Q<VisualElement>("SFXVolumeContainer");
         if (sfxSlider != null)
         {
             selectableElements.Add(new MenuElement("SFX Volume", sfxSlider, sfxContainer));
+            Debug.Log("✅ SFX Volume container isolated");
         }
 
         AddButtonElement("CloseSound", "Back");
     }
 
+    // KRITIEKE FIX VOOR QUALITY PROBLEEM
     void SetupVideoElements()
     {
         var root = uiDocument.rootVisualElement;
 
-        // Quality container met GEFIXTE NAAM
+        // DIRECTE BUTTON SETUP - als containers niet bestaan
+        var resolutionPrevBtn = root.Q<Button>("ResolutionPrevBtn");
+        var qualityPrevBtn = root.Q<Button>("QualityPrevBtn") ?? root.Q<Button>("QaulityPrevBtn");
+
+        // Probeer containers te vinden
+        var resolutionContainer = root.Q<VisualElement>("ResolutionContainer");
         var qualityContainer = root.Q<VisualElement>("qualityContainer");
-        var qualityPrevBtn = root.Q<Button>("QaulityPrevBtn");  // QaulityPrevBtn met foutje
 
-        if (qualityPrevBtn != null && qualityContainer != null)
+        // RESOLUTION SETUP
+        if (resolutionPrevBtn != null)
         {
-            // Gebruik container voor highlighting, button voor functionaliteit
-            selectableElements.Add(new MenuElement("Quality", qualityPrevBtn, qualityContainer));
+            if (resolutionContainer != null)
+            {
+                selectableElements.Add(new MenuElement("Resolution", resolutionPrevBtn, resolutionContainer));
+                Debug.Log("✅ Resolution with container added");
+            }
+            else
+            {
+                selectableElements.Add(new MenuElement("Resolution", resolutionPrevBtn));
+                Debug.Log("✅ Resolution button only added (no container)");
+            }
         }
-        else if (qualityPrevBtn != null)
+
+        // QUALITY SETUP - KRITIEKE FIX
+        if (qualityPrevBtn != null)
         {
-            // Fallback als geen container - GEFIXTE NAAM
-            AddButtonElement("QaulityPrevBtn", "Quality");  // QaulityPrevBtn met foutje
+            if (qualityContainer != null)
+            {
+                selectableElements.Add(new MenuElement("Quality", qualityPrevBtn, qualityContainer));
+                Debug.Log($"✅ Quality with container added: {qualityPrevBtn.name}");
+            }
+            else
+            {
+                // FALLBACK: Als container niet bestaat, behandel button als normaal element
+                selectableElements.Add(new MenuElement("Quality", qualityPrevBtn));
+                Debug.Log($"✅ Quality button added WITHOUT container: {qualityPrevBtn.name}");
+            }
+        }
+        else
+        {
+            Debug.LogError("❌ NO Quality button found! Checking for: QualityPrevBtn, QaulityPrevBtn");
+
+            // DEBUG: List alle buttons in Video panel
+            var allButtons = root.Query<Button>().ToList();
+            Debug.Log("📋 All buttons in UXML:");
+            foreach (var btn in allButtons)
+            {
+                Debug.Log($"  🔘 {btn.name}");
+            }
         }
 
-        // Resolution
-        AddButtonElement("ResolutionPrevBtn", "Resolution");
-
-        // Back button
         AddButtonElement("CloseVideo", "Back");
+
+        Debug.Log($"📋 Video panel setup complete: {selectableElements.Count} elements");
     }
 
     void SetupSimplePanelElements(string panelName)
@@ -566,30 +701,61 @@ public class MainMenu : MonoBehaviour
         if (button != null)
         {
             selectableElements.Add(new MenuElement(displayName, button));
+            Debug.Log($"✅ Added button element: {displayName}");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ Button '{buttonName}' not found for element '{displayName}'");
         }
     }
 
+    // NIEUWE methode om expliciet highlighting te starten
+    void StartControllerNavigation()
+    {
+        if (currentInputMode == InputMode.Controller && selectableElements.Count > 0)
+        {
+            currentSelection = 0;
+            HighlightCurrentElement();
+        }
+    }
+
+    // VERBETERDE AC Syndicate style highlighting
     void HighlightCurrentElement()
     {
-        // Alleen highlight als controller mode actief is!
         if (currentInputMode != InputMode.Controller) return;
 
-        // Verwijder alle rode highlights
         ClearAllHighlights();
 
-        // Highlight het huidige element
         if (currentSelection < selectableElements.Count)
         {
             var element = selectableElements[currentSelection];
-            element.container?.AddToClassList("controller-selected");
 
-            // Focus voor keyboard input
             if (element.button != null)
-                element.button.Focus();
-            else if (element.slider != null)
-                element.slider.Focus();
+            {
+                // Als er GEEN aparte container is, highlight de button
+                if (element.container == element.button || element.container == null)
+                {
+                    element.button.AddToClassList("ac-button-selected");
+                    element.button.AddToClassList("ac-pulse");
+                    element.button.Focus();
+                    Debug.Log($"🔴 Button highlighted: {element.name}");
+                }
+                // Als er WEL een aparte container is, highlight de container
+                else
+                {
+                    element.container.AddToClassList("controller-selected");
+                    element.container.AddToClassList("ac-pulse");
+                    Debug.Log($"🔴 Container highlighted: {element.name}");
+                }
+            }
+            else if (element.slider != null && element.container != null)
+            {
+                element.container.AddToClassList("controller-selected");
+                element.container.AddToClassList("ac-pulse");
+                Debug.Log($"🔴 Slider container highlighted: {element.name}");
+            }
 
-            Debug.Log($"🎮 Controller Selected: {element.name}");
+            Debug.Log($"🎯 AC Syndicate Selected: {element.name}");
         }
     }
 
@@ -597,98 +763,167 @@ public class MainMenu : MonoBehaviour
     {
         foreach (var element in selectableElements)
         {
-            element.container?.RemoveFromClassList("controller-selected");
+            if (element.container != null)
+            {
+                element.container.RemoveFromClassList("controller-selected");
+                element.container.RemoveFromClassList("ac-pulse");
+            }
+
+            if (element.button != null)
+            {
+                element.button.RemoveFromClassList("ac-button-selected");
+                element.button.RemoveFromClassList("ac-pulse");
+            }
         }
     }
     #endregion
 
-    #region INPUT HANDLING - Controller en keyboard input
+    #region INPUT HANDLING - VERBETERDE Controller Support
     void Update()
     {
-        // Check voor input mode switches
         DetectInputModeChanges();
 
-        // Handle input alleen voor actieve mode
         if (currentInputMode == InputMode.Controller)
         {
             HandleControllerInput();
         }
     }
 
+    // Verbeterde input detectie voor AC Syndicate feel
     void DetectInputModeChanges()
     {
-        // Controller input detectie
+        // Controller input detectie - verbeterd
         if (Gamepad.current != null)
         {
             Vector2 stick = Gamepad.current.leftStick.ReadValue();
+            Vector2 rightStick = Gamepad.current.rightStick.ReadValue();
+            Vector2 dpad = Gamepad.current.dpad.ReadValue();
+
             bool anyButtonPressed = Gamepad.current.buttonSouth.wasPressedThisFrame ||
                                   Gamepad.current.buttonEast.wasPressedThisFrame ||
                                   Gamepad.current.buttonWest.wasPressedThisFrame ||
-                                  Gamepad.current.buttonNorth.wasPressedThisFrame;
+                                  Gamepad.current.buttonNorth.wasPressedThisFrame ||
+                                  Gamepad.current.leftShoulder.wasPressedThisFrame ||
+                                  Gamepad.current.rightShoulder.wasPressedThisFrame;
 
-            if (stick.magnitude > 0.3f || anyButtonPressed)
+            if (stick.magnitude > 0.2f || rightStick.magnitude > 0.2f ||
+                dpad.magnitude > 0.2f || anyButtonPressed)
             {
                 SwitchToInputMode(InputMode.Controller);
             }
         }
 
-        // Mouse movement wordt al gedetecteerd in OnMouseEnterElement
+        // Mouse movement detectie
+        if (Mouse.current != null && Mouse.current.delta.ReadValue().magnitude > 1f)
+        {
+            SwitchToInputMode(InputMode.Mouse);
+        }
     }
 
+    // VERBETERDE controller input voor AC Syndicate responsiviteit
     void HandleControllerInput()
     {
         if (Gamepad.current == null) return;
 
-        // Te snel input voorkomen
         if (Time.time - lastInputTime < INPUT_DELAY) return;
 
         Vector2 stick = Gamepad.current.leftStick.ReadValue();
-        float threshold = 0.6f;
+        Vector2 dpad = Gamepad.current.dpad.ReadValue();
+
+        Vector2 combinedInput = stick + dpad;
+        float threshold = 0.5f;
+
+        // VERBETERD: Als er nog geen element geselecteerd is, start navigatie
+        bool hasActiveSelection = selectableElements.Count > 0 &&
+                                currentSelection < selectableElements.Count &&
+                                (selectableElements[currentSelection].button?.ClassListContains("ac-button-selected") == true ||
+                                 selectableElements[currentSelection].container?.ClassListContains("controller-selected") == true);
 
         // Up/Down navigatie
-        if (stick.y > threshold && !wasUp)
+        if (combinedInput.y > threshold && !wasUp)
         {
-            NavigateUp();
+            if (!hasActiveSelection && selectableElements.Count > 0)
+            {
+                // Start navigatie
+                StartControllerNavigation();
+            }
+            else
+            {
+                NavigateUp();
+            }
             wasUp = true;
             lastInputTime = Time.time;
+            PlayNavigationSound();
         }
-        else if (stick.y <= threshold) wasUp = false;
+        else if (combinedInput.y <= threshold) wasUp = false;
 
-        if (stick.y < -threshold && !wasDown)
+        if (combinedInput.y < -threshold && !wasDown)
         {
-            NavigateDown();
+            if (!hasActiveSelection && selectableElements.Count > 0)
+            {
+                // Start navigatie
+                StartControllerNavigation();
+            }
+            else
+            {
+                NavigateDown();
+            }
             wasDown = true;
             lastInputTime = Time.time;
+            PlayNavigationSound();
         }
-        else if (stick.y >= -threshold) wasDown = false;
+        else if (combinedInput.y >= -threshold) wasDown = false;
 
-        // Left/Right voor sliders en resolutie
-        if (stick.x < -threshold && !wasLeft)
+        // Left/Right voor sliders en instellingen
+        if (combinedInput.x < -threshold && !wasLeft)
         {
-            AdjustCurrentElement(-1);
+            if (!hasActiveSelection && selectableElements.Count > 0)
+            {
+                StartControllerNavigation();
+            }
+            else
+            {
+                AdjustCurrentElement(-1);
+            }
             wasLeft = true;
             lastInputTime = Time.time;
         }
-        else if (stick.x >= -threshold) wasLeft = false;
+        else if (combinedInput.x >= -threshold) wasLeft = false;
 
-        if (stick.x > threshold && !wasRight)
+        if (combinedInput.x > threshold && !wasRight)
         {
-            AdjustCurrentElement(1);
+            if (!hasActiveSelection && selectableElements.Count > 0)
+            {
+                StartControllerNavigation();
+            }
+            else
+            {
+                AdjustCurrentElement(1);
+            }
             wasRight = true;
             lastInputTime = Time.time;
         }
-        else if (stick.x <= threshold) wasRight = false;
+        else if (combinedInput.x <= threshold) wasRight = false;
 
         // A button (confirm)
         if (Gamepad.current.buttonSouth.wasPressedThisFrame)
         {
-            ActivateCurrentElement();
+            if (!hasActiveSelection && selectableElements.Count > 0)
+            {
+                StartControllerNavigation();
+            }
+            else
+            {
+                ActivateCurrentElement();
+                PlayConfirmSound();
+            }
         }
 
         // B button (back)
         if (Gamepad.current.buttonEast.wasPressedThisFrame)
         {
             GoBack();
+            PlayBackSound();
         }
     }
 
@@ -710,27 +945,32 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+    // KRITIEKE FIX VOOR QUALITY ADJUSTMENT
     void AdjustCurrentElement(int direction)
     {
         if (currentSelection < selectableElements.Count)
         {
             var element = selectableElements[currentSelection];
 
-            // Als het een slider is
             if (element.slider != null)
             {
                 float change = direction * 0.1f;
                 element.slider.value = Mathf.Clamp(element.slider.value + change, 0f, 1f);
+                Debug.Log($"🎵 Slider adjusted: {element.name} = {element.slider.value:F2}");
             }
-            // Als het resolutie is
             else if (element.name == "Resolution")
             {
                 ChangeResolution(direction);
+                Debug.Log($"📺 Resolution adjusted: {direction}");
             }
-            // Als het quality is
             else if (element.name == "Quality")
             {
                 ChangeQuality(direction);
+                Debug.Log($"🎨 Quality adjusted: {direction} -> {QualitySettings.names[currentQualityIndex]}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ Cannot adjust element: {element.name}");
             }
         }
     }
@@ -742,7 +982,6 @@ public class MainMenu : MonoBehaviour
             var element = selectableElements[currentSelection];
             if (element.button != null)
             {
-                // Correcte manier om button click te simuleren in UI Toolkit
                 using (var clickEvent = ClickEvent.GetPooled())
                 {
                     clickEvent.target = element.button;
@@ -754,11 +993,9 @@ public class MainMenu : MonoBehaviour
 
     void GoBack()
     {
-        // Zoek back button
         var backElement = selectableElements.Find(e => e.name == "Back");
         if (backElement?.button != null)
         {
-            // Correcte manier om button click te simuleren
             using (var clickEvent = ClickEvent.GetPooled())
             {
                 clickEvent.target = backElement.button;
@@ -770,9 +1007,28 @@ public class MainMenu : MonoBehaviour
             ShowMainMenu();
         }
     }
+
+    // AC Syndicate style audio feedback
+    void PlayNavigationSound()
+    {
+        Debug.Log("🔊 AC Navigation");
+        // Voeg hier je navigation sound toe
+    }
+
+    void PlayConfirmSound()
+    {
+        Debug.Log("🔊 AC Confirm");
+        // Voeg hier je confirm sound toe
+    }
+
+    void PlayBackSound()
+    {
+        Debug.Log("🔊 AC Back");
+        // Voeg hier je back sound toe
+    }
     #endregion
 
-    #region GAME ACTIONS - Start/Quit/Save
+    #region GAME ACTIONS
     void StartGame()
     {
         SaveAllSettings();
@@ -789,28 +1045,23 @@ public class MainMenu : MonoBehaviour
     {
         var root = uiDocument.rootVisualElement;
 
-        // Save audio
         var musicSlider = root.Q<Slider>("MusicSlider");
         var sfxSlider = root.Q<Slider>("SFXSlider");
 
         if (musicSlider != null) PlayerPrefs.SetFloat("MusicVolume", musicSlider.value);
         if (sfxSlider != null) PlayerPrefs.SetFloat("SFXVolume", sfxSlider.value);
 
-        // Save resolution
         PlayerPrefs.SetInt("ResolutionIndex", currentResolutionIndex);
-
-        // Save quality
         PlayerPrefs.SetInt("QualityLevel", currentQualityIndex);
 
         PlayerPrefs.Save();
-        Debug.Log("Settings saved!");
+        Debug.Log("💾 Settings saved!");
     }
 
     void LoadSavedSettings()
     {
         var root = uiDocument.rootVisualElement;
 
-        // Load audio
         var musicSlider = root.Q<Slider>("MusicSlider");
         var sfxSlider = root.Q<Slider>("SFXSlider");
 
@@ -828,16 +1079,75 @@ public class MainMenu : MonoBehaviour
             SetSFXVolume(savedSFX);
         }
 
-        // Load resolution
         currentResolutionIndex = PlayerPrefs.GetInt("ResolutionIndex", currentResolutionIndex);
         UpdateResolutionText();
 
-        // Load quality
         currentQualityIndex = PlayerPrefs.GetInt("QualityLevel", QualitySettings.GetQualityLevel());
         QualitySettings.SetQualityLevel(currentQualityIndex);
         UpdateQualityText();
 
-        Debug.Log("Settings loaded!");
+        Debug.Log("📁 Settings loaded!");
+    }
+    #endregion
+
+    #region DEBUG METHODS
+    // DEBUG METHOD - Log alle UI elementen voor troubleshooting
+    void LogAllUIElements()
+    {
+        var root = uiDocument.rootVisualElement;
+
+        Debug.Log("=== 🔍 UI ELEMENTS DEBUG ===");
+
+        // Check alle panels
+        var panels = new string[] { "Options", "Video", "Sound", "Credits", "Controls" };
+        foreach (string panelName in panels)
+        {
+            var panel = root.Q<VisualElement>(panelName);
+            Debug.Log($"Panel '{panelName}' found: {panel != null}");
+        }
+
+        // Check Video elements
+        var qualityBtn1 = root.Q<Button>("QualityPrevBtn");
+        var qualityBtn2 = root.Q<Button>("QaulityPrevBtn");
+        var qualityContainer = root.Q<VisualElement>("qualityContainer");
+        var resolutionContainer = root.Q<VisualElement>("ResolutionContainer");
+
+        Debug.Log($"QualityPrevBtn found: {qualityBtn1 != null}");
+        Debug.Log($"QaulityPrevBtn found: {qualityBtn2 != null}");
+        Debug.Log($"qualityContainer found: {qualityContainer != null}");
+        Debug.Log($"ResolutionContainer found: {resolutionContainer != null}");
+
+        // Check Sound elements
+        var musicSlider = root.Q<Slider>("MusicSlider");
+        var sfxSlider = root.Q<Slider>("SFXSlider");
+        var musicContainer = root.Q<VisualElement>("MusicVolumeContainer");
+        var sfxContainer = root.Q<VisualElement>("SFXVolumeContainer");
+
+        Debug.Log($"MusicSlider found: {musicSlider != null}");
+        Debug.Log($"SFXSlider found: {sfxSlider != null}");
+        Debug.Log($"MusicVolumeContainer found: {musicContainer != null}");
+        Debug.Log($"SFXVolumeContainer found: {sfxContainer != null}");
+
+        // List alle buttons die bestaan
+        var allButtons = root.Query<Button>().ToList();
+        Debug.Log($"📋 Total buttons found: {allButtons.Count}");
+        foreach (var btn in allButtons)
+        {
+            Debug.Log($"  🔘 Button: {btn.name} (text: '{btn.text}')");
+        }
+
+        // List alle VisualElements
+        var allElements = root.Query<VisualElement>().ToList();
+        Debug.Log($"📋 Total VisualElements found: {allElements.Count}");
+        foreach (var elem in allElements)
+        {
+            if (!string.IsNullOrEmpty(elem.name))
+            {
+                Debug.Log($"  📦 Element: {elem.name} (type: {elem.GetType().Name})");
+            }
+        }
+
+        Debug.Log("=== 🔍 END UI ELEMENTS DEBUG ===");
     }
     #endregion
 }
