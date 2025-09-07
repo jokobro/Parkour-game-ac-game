@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -28,12 +29,16 @@ public class MainMenu : MonoBehaviour
     private List<MenuElement> selectableElements = new List<MenuElement>();
     private int currentSelection = 0;
 
-    // Resolutie instellingen
+    // SIMPELE RESOLUTIE LIJST - GEEN EXTREME FILTERING
+    [Header("Resolution Settings")]
     private List<Vector2Int> resolutions = new List<Vector2Int>();
     private int currentResolutionIndex = 0;
 
     // Quality instellingen
     private int currentQualityIndex = 0;
+
+    // Enhanced visual feedback - AC Syndicate style
+    private bool isAdjustingSlider = false;
 
     // Simpele class voor menu elementen
     private class MenuElement
@@ -73,7 +78,147 @@ public class MainMenu : MonoBehaviour
         Setup();
     }
 
+    #region SIMPELE RESOLUTIE SETUP - LAAT USERS KIEZEN
+
+    void SetupResolutionSystem()
+    {
+        // Simpele aanpak: gewoon goede resoluties aanbieden
+        SetupSimpleResolutionList();
+
+        // Resolution controls
+        RegisterButtonClick("ResolutionPrevBtn", () => ChangeResolution(-1));
+        RegisterButtonClick("ResolutionNextBtn", () => ChangeResolution(1));
+
+        UpdateResolutionText();
+
+        Debug.Log($"🖥️ Current screen resolution: {Screen.currentResolution.width}x{Screen.currentResolution.height}");
+        Debug.Log($"🎮 UI designed for: 1920x1080 (from PanelSettings)");
+        Debug.Log($"📺 User can choose any good resolution they want");
+    }
+
+    void SetupSimpleResolutionList()
+    {
+        resolutions.Clear();
+
+        // SIMPELE LIJST MET GOEDE RESOLUTIES - Geen extreme filtering
+        Vector2Int[] goodResolutions = {
+            new Vector2Int(1280, 720),   // 720p - minimum
+            new Vector2Int(1366, 768),   // Laptop standaard
+            new Vector2Int(1600, 900),   // 900p
+            new Vector2Int(1920, 1080),  // 1080p - UI design target
+            new Vector2Int(2560, 1440),  // 1440p
+            new Vector2Int(3840, 2160)   // 4K
+        };
+
+        // Voeg alle goede resoluties toe
+        foreach (var res in goodResolutions)
+        {
+            resolutions.Add(res);
+        }
+
+        // Voeg ook monitor ondersteunde resoluties toe (als ze groot genoeg zijn)
+        foreach (var res in Screen.resolutions)
+        {
+            Vector2Int resolution = new Vector2Int(res.width, res.height);
+
+            // Simpele check: alleen toevoegen als groot genoeg en nog niet in lijst
+            if (resolution.x >= 1280 && resolution.y >= 720 && !resolutions.Contains(resolution))
+            {
+                resolutions.Add(resolution);
+            }
+        }
+
+        // Sorteer van klein naar groot (makkelijker om te navigeren)
+        resolutions = resolutions.OrderBy(r => r.x * r.y).ToList();
+
+        // Vind een goede starting resolutie
+        Vector2Int currentRes = new Vector2Int(Screen.currentResolution.width, Screen.currentResolution.height);
+        currentResolutionIndex = resolutions.FindIndex(r => r == currentRes);
+
+        // Als huidige resolutie niet gevonden, start met 1920x1080 (UI design target)
+        if (currentResolutionIndex == -1)
+        {
+            currentResolutionIndex = resolutions.FindIndex(r => r.x == 1920 && r.y == 1080);
+            if (currentResolutionIndex == -1) currentResolutionIndex = resolutions.Count - 1; // fallback: hoogste
+        }
+
+        Debug.Log($"📺 Resolution list setup: {resolutions.Count} options available");
+
+        // Log alle beschikbare resoluties
+        for (int i = 0; i < resolutions.Count; i++)
+        {
+            var res = resolutions[i];
+            string marker = (i == currentResolutionIndex) ? " <-- CURRENT" : "";
+            string quality = GetResolutionQuality(res);
+            Debug.Log($"  📺 [{i}] {res.x}x{res.y} ({quality}){marker}");
+        }
+
+        // BELANGRIJK: Als we niet op de design resolutie starten, fix dat direct
+        if (currentResolutionIndex != -1)
+        {
+            var startRes = resolutions[currentResolutionIndex];
+            if (startRes.x != Screen.currentResolution.width || startRes.y != Screen.currentResolution.height)
+            {
+                Debug.Log($"🔧 Setting resolution to: {startRes.x}x{startRes.y} to fix black bars");
+                Screen.SetResolution(startRes.x, startRes.y, FullScreenMode.FullScreenWindow);
+            }
+        }
+    }
+
+    // Helper: krijg kwaliteit label voor resolutie
+    string GetResolutionQuality(Vector2Int resolution)
+    {
+        if (resolution.x >= 3840) return "4K";
+        if (resolution.x >= 2560) return "1440p";
+        if (resolution.x >= 1920) return "1080p";
+        if (resolution.x >= 1600) return "900p";
+        if (resolution.x >= 1366) return "Laptop";
+        return "720p";
+    }
+
+    void ChangeResolution(int direction)
+    {
+        if (resolutions.Count == 0)
+        {
+            Debug.LogWarning("⚠️ No resolutions available!");
+            return;
+        }
+
+        currentResolutionIndex = (currentResolutionIndex + direction + resolutions.Count) % resolutions.Count;
+        var newRes = resolutions[currentResolutionIndex];
+
+        // Wijzig de scherm resolutie
+        Screen.SetResolution(newRes.x, newRes.y, FullScreenMode.FullScreenWindow);
+
+        UpdateResolutionText();
+
+        string quality = GetResolutionQuality(newRes);
+        Debug.Log($"📺 Resolution changed to: {newRes.x}x{newRes.y} ({quality})");
+
+        if (newRes.x == 1920 && newRes.y == 1080)
+        {
+            Debug.Log($"✅ Perfect match with UI design resolution!");
+        }
+    }
+
+    void UpdateResolutionText()
+    {
+        var resolutionLabel = uiDocument.rootVisualElement.Q<Label>("ResolutionLabel");
+        if (resolutionLabel != null && currentResolutionIndex >= 0 && currentResolutionIndex < resolutions.Count)
+        {
+            var res = resolutions[currentResolutionIndex];
+            resolutionLabel.text = $"{res.x} x {res.y}";
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ Could not update resolution text!");
+        }
+    }
+
+    #endregion
+
     #region SETUP - Initialisatie van het menu
+
     void Setup()
     {
         // Basis setup
@@ -81,7 +226,7 @@ public class MainMenu : MonoBehaviour
         FindAllPanels();
         SetupButtonClicks();
         SetupAudioSettings();
-        SetupResolutionSettings();
+        SetupResolutionSystem(); // FIXED: Simpele resolutie setup
         SetupQualitySettings();
         SetupMouseHoverEvents();
         SetupACButtonStyling(); // AC Syndicate styling
@@ -96,7 +241,7 @@ public class MainMenu : MonoBehaviour
         // DEBUG: Log alle UI elementen
         LogAllUIElements();
 
-        Debug.Log("🎮 AC Syndicate Main Menu Setup Complete");
+        Debug.Log("🎮 AC Syndicate Main Menu Setup Complete - simple resolution system!");
     }
 
     void FindAllPanels()
@@ -185,7 +330,7 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    // Setup mouse hover events voor containers
+    // FIXED: Setup mouse hover events voor containers
     void SetupMouseHoverEvents()
     {
         var root = uiDocument.rootVisualElement;
@@ -195,44 +340,54 @@ public class MainMenu : MonoBehaviour
         foreach (var button in allButtons)
         {
             button.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
-            button.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+            button.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement); // FIXED: MouseLeaveEvent
         }
 
-        // Sound containers (alleen als ze bestaan)
+        // Sound containers
         var musicContainer = root.Q<VisualElement>("MusicVolumeContainer");
         var sfxContainer = root.Q<VisualElement>("SFXVolumeContainer");
 
-        // Video containers (alleen als ze bestaan)
+        // Video containers - MET JUISTE NAMEN!
         var resolutionContainer = root.Q<VisualElement>("ResolutionContainer");
-        var qualityContainer = root.Q<VisualElement>("qualityContainer");
+        var qualityContainer = root.Q<VisualElement>("QaulityContainer"); // MET TYPO!
 
+        // Setup mouse hover voor alle containers
         if (musicContainer != null)
         {
             musicContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
-            musicContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+            musicContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement); // FIXED: MouseLeaveEvent
+            Debug.Log("✅ Music container mouse hover registered");
         }
 
         if (sfxContainer != null)
         {
             sfxContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
-            sfxContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+            sfxContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement); // FIXED: MouseLeaveEvent
+            Debug.Log("✅ SFX container mouse hover registered");
         }
 
         if (resolutionContainer != null)
         {
             resolutionContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
-            resolutionContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+            resolutionContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement); // FIXED: MouseLeaveEvent
+            Debug.Log("✅ Resolution container mouse hover registered");
         }
 
         if (qualityContainer != null)
         {
             qualityContainer.RegisterCallback<MouseEnterEvent>(OnMouseEnterElement);
-            qualityContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement);
+            qualityContainer.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveElement); // FIXED: MouseLeaveEvent
+            Debug.Log($"✅ Quality container mouse hover registered: {qualityContainer.name}");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ QaulityContainer not found for mouse hover!");
         }
     }
     #endregion
 
     #region INPUT MODE MANAGEMENT - AC Syndicate Controller vs Mouse
+
     // VERBETERDE input mode switching met betere visuele feedback
     void SwitchToInputMode(InputMode newMode)
     {
@@ -265,6 +420,7 @@ public class MainMenu : MonoBehaviour
             {
                 controllerHint.style.display = DisplayStyle.Flex;
             }
+
             Debug.Log("🎮 AC SYNDICATE CONTROLLER MODE ACTIVE");
         }
         else
@@ -274,6 +430,7 @@ public class MainMenu : MonoBehaviour
             {
                 controllerHint.style.display = DisplayStyle.None;
             }
+
             Debug.Log("🖱️ MOUSE MODE ACTIVE");
         }
     }
@@ -291,7 +448,8 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    void OnMouseLeaveElement(MouseLeaveEvent evt)
+    // FIXED: Correct parameter type
+    void OnMouseLeaveElement(MouseLeaveEvent evt) // FIXED: MouseLeaveEvent instead of OnMouseLeaveEvent
     {
         // Remove highlight
         var element = evt.target as VisualElement;
@@ -305,15 +463,16 @@ public class MainMenu : MonoBehaviour
     {
         var root = uiDocument.rootVisualElement;
         var allElements = root.Query<VisualElement>().ToList();
-
         foreach (var element in allElements)
         {
             element.RemoveFromClassList("mouse-hover");
         }
     }
+
     #endregion
 
     #region AUDIO INSTELLINGEN - GEFIXT VOOR CROSS-CONTAMINATION
+
     void SetupAudioSettings()
     {
         var root = uiDocument.rootVisualElement;
@@ -399,60 +558,11 @@ public class MainMenu : MonoBehaviour
             }
         }
     }
-    #endregion
 
-    #region RESOLUTIE INSTELLINGEN
-    void SetupResolutionSettings()
-    {
-        var supportedResolutions = Screen.resolutions;
-        resolutions.Clear();
-
-        HashSet<Vector2Int> uniqueResolutions = new HashSet<Vector2Int>();
-        foreach (var res in supportedResolutions)
-        {
-            Vector2Int resolution = new Vector2Int(res.width, res.height);
-            uniqueResolutions.Add(resolution);
-        }
-
-        resolutions = uniqueResolutions.OrderByDescending(r => r.x * r.y).ToList();
-
-        Vector2Int currentRes = new Vector2Int(Screen.currentResolution.width, Screen.currentResolution.height);
-        currentResolutionIndex = resolutions.FindIndex(r => r == currentRes);
-        if (currentResolutionIndex == -1) currentResolutionIndex = 0;
-
-        UpdateResolutionText();
-
-        RegisterButtonClick("ResolutionPrevBtn", () => ChangeResolution(-1));
-        RegisterButtonClick("ResolutionNextBtn", () => ChangeResolution(1));
-
-        Debug.Log($"📺 Found {resolutions.Count} resolutions");
-    }
-
-    void ChangeResolution(int direction)
-    {
-        if (resolutions.Count == 0) return;
-
-        currentResolutionIndex = (currentResolutionIndex + direction + resolutions.Count) % resolutions.Count;
-
-        var newRes = resolutions[currentResolutionIndex];
-        Screen.SetResolution(newRes.x, newRes.y, FullScreenMode.FullScreenWindow);
-
-        UpdateResolutionText();
-        Debug.Log($"📺 Resolution: {newRes.x}x{newRes.y}");
-    }
-
-    void UpdateResolutionText()
-    {
-        var resolutionLabel = uiDocument.rootVisualElement.Q<Label>("ResolutionLabel");
-        if (resolutionLabel != null && currentResolutionIndex < resolutions.Count)
-        {
-            var res = resolutions[currentResolutionIndex];
-            resolutionLabel.text = $"{res.x} x {res.y}";
-        }
-    }
     #endregion
 
     #region QUALITY INSTELLINGEN - GEFIXT VOOR BEIDE SPELLINGEN
+
     void SetupQualitySettings()
     {
         currentQualityIndex = QualitySettings.GetQualityLevel();
@@ -481,7 +591,6 @@ public class MainMenu : MonoBehaviour
     void UpdateQualityText()
     {
         var qualityLabel = uiDocument.rootVisualElement.Q<Label>("QaulityLabel");
-
         if (qualityLabel == null)
         {
             Debug.LogWarning("QaulityLabel not found!");
@@ -493,9 +602,11 @@ public class MainMenu : MonoBehaviour
             qualityLabel.text = QualitySettings.names[currentQualityIndex];
         }
     }
+
     #endregion
 
     #region PANEL MANAGEMENT - VERBETERDE ERROR HANDLING
+
     void ShowMainMenu()
     {
         HideAllPanels();
@@ -512,7 +623,9 @@ public class MainMenu : MonoBehaviour
         {
             panel.style.display = DisplayStyle.Flex;
             panel.style.visibility = Visibility.Visible;
+
             SetupPanelElements(panelName);
+
             Debug.Log($"📋 Panel Active: {panelName}");
         }
         else
@@ -535,9 +648,11 @@ public class MainMenu : MonoBehaviour
             }
         }
     }
+
     #endregion
 
     #region CONTROLLER NAVIGATION - AC Syndicate Style VERBETERD
+
     void SetupMainMenuElements()
     {
         selectableElements.Clear();
@@ -628,65 +743,48 @@ public class MainMenu : MonoBehaviour
         AddButtonElement("CloseSound", "Back");
     }
 
-    // KRITIEKE FIX VOOR QUALITY PROBLEEM
+    // GEFIXTE VIDEO ELEMENTS - Quality met juiste container naam!
     void SetupVideoElements()
     {
         var root = uiDocument.rootVisualElement;
 
-        // DIRECTE BUTTON SETUP - als containers niet bestaan
+        // RESOLUTION setup (blijft hetzelfde)
         var resolutionPrevBtn = root.Q<Button>("ResolutionPrevBtn");
-        var qualityPrevBtn = root.Q<Button>("QualityPrevBtn") ?? root.Q<Button>("QaulityPrevBtn");
-
-        // Probeer containers te vinden
         var resolutionContainer = root.Q<VisualElement>("ResolutionContainer");
-        var qualityContainer = root.Q<VisualElement>("qualityContainer");
 
-        // RESOLUTION SETUP
-        if (resolutionPrevBtn != null)
+        if (resolutionPrevBtn != null && resolutionContainer != null)
         {
-            if (resolutionContainer != null)
-            {
-                selectableElements.Add(new MenuElement("Resolution", resolutionPrevBtn, resolutionContainer));
-                Debug.Log("✅ Resolution with container added");
-            }
-            else
-            {
-                selectableElements.Add(new MenuElement("Resolution", resolutionPrevBtn));
-                Debug.Log("✅ Resolution button only added (no container)");
-            }
+            selectableElements.Add(new MenuElement("Resolution", resolutionPrevBtn, resolutionContainer));
+            Debug.Log("✅ Resolution: Button + Container added");
         }
 
-        // QUALITY SETUP - KRITIEKE FIX
-        if (qualityPrevBtn != null)
+        // QUALITY setup - MET DE JUISTE CONTAINER NAAM!
+        var qualityPrevBtn = root.Q<Button>("QaulityPrevBtn"); // Typo versie werkt
+        var qualityContainer = root.Q<VisualElement>("QaulityContainer"); // MET TYPO!
+
+        Debug.Log($"🔍 Quality button found: {qualityPrevBtn != null}");
+        Debug.Log($"🔍 Quality container found: {qualityContainer != null}");
+
+        if (qualityPrevBtn != null && qualityContainer != null)
         {
-            if (qualityContainer != null)
-            {
-                selectableElements.Add(new MenuElement("Quality", qualityPrevBtn, qualityContainer));
-                Debug.Log($"✅ Quality with container added: {qualityPrevBtn.name}");
-            }
-            else
-            {
-                // FALLBACK: Als container niet bestaat, behandel button als normaal element
-                selectableElements.Add(new MenuElement("Quality", qualityPrevBtn));
-                Debug.Log($"✅ Quality button added WITHOUT container: {qualityPrevBtn.name}");
-            }
+            selectableElements.Add(new MenuElement("Quality", qualityPrevBtn, qualityContainer));
+            Debug.Log("✅ Quality: Button + Container added - FIXED WITH CORRECT NAME!");
+        }
+        else if (qualityPrevBtn != null)
+        {
+            // Fallback: Alleen button
+            selectableElements.Add(new MenuElement("Quality", qualityPrevBtn));
+            Debug.Log("⚠️ Quality: Only button added (no container)");
         }
         else
         {
-            Debug.LogError("❌ NO Quality button found! Checking for: QualityPrevBtn, QaulityPrevBtn");
-
-            // DEBUG: List alle buttons in Video panel
-            var allButtons = root.Query<Button>().ToList();
-            Debug.Log("📋 All buttons in UXML:");
-            foreach (var btn in allButtons)
-            {
-                Debug.Log($"  🔘 {btn.name}");
-            }
+            Debug.LogError("❌ NO Quality button found!");
         }
 
+        // Back button
         AddButtonElement("CloseVideo", "Back");
 
-        Debug.Log($"📋 Video panel setup complete: {selectableElements.Count} elements");
+        Debug.Log($"📋 Video setup: {selectableElements.Count} elements total");
     }
 
     void SetupSimplePanelElements(string panelName)
@@ -738,6 +836,7 @@ public class MainMenu : MonoBehaviour
                     element.button.AddToClassList("ac-button-selected");
                     element.button.AddToClassList("ac-pulse");
                     element.button.Focus();
+
                     Debug.Log($"🔴 Button highlighted: {element.name}");
                 }
                 // Als er WEL een aparte container is, highlight de container
@@ -745,6 +844,15 @@ public class MainMenu : MonoBehaviour
                 {
                     element.container.AddToClassList("controller-selected");
                     element.container.AddToClassList("ac-pulse");
+
+                    // EXTRA DEBUG VOOR QUALITY
+                    if (element.name == "Quality")
+                    {
+                        Debug.Log($"🔴🔴🔴 QUALITY CONTAINER HIGHLIGHTED!");
+                        Debug.Log($"Container name: {element.container.name}");
+                        Debug.Log($"Container classes: {string.Join(", ", element.container.GetClasses())}");
+                    }
+
                     Debug.Log($"🔴 Container highlighted: {element.name}");
                 }
             }
@@ -752,6 +860,7 @@ public class MainMenu : MonoBehaviour
             {
                 element.container.AddToClassList("controller-selected");
                 element.container.AddToClassList("ac-pulse");
+
                 Debug.Log($"🔴 Slider container highlighted: {element.name}");
             }
 
@@ -776,9 +885,11 @@ public class MainMenu : MonoBehaviour
             }
         }
     }
+
     #endregion
 
     #region INPUT HANDLING - VERBETERDE Controller Support
+
     void Update()
     {
         DetectInputModeChanges();
@@ -824,13 +935,12 @@ public class MainMenu : MonoBehaviour
     void HandleControllerInput()
     {
         if (Gamepad.current == null) return;
-
         if (Time.time - lastInputTime < INPUT_DELAY) return;
 
         Vector2 stick = Gamepad.current.leftStick.ReadValue();
         Vector2 dpad = Gamepad.current.dpad.ReadValue();
-
         Vector2 combinedInput = stick + dpad;
+
         float threshold = 0.5f;
 
         // VERBETERD: Als er nog geen element geselecteerd is, start navigatie
@@ -945,7 +1055,7 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    // KRITIEKE FIX VOOR QUALITY ADJUSTMENT
+    // SIMPEL - Laat users alle resoluties proberen
     void AdjustCurrentElement(int direction)
     {
         if (currentSelection < selectableElements.Count)
@@ -960,8 +1070,8 @@ public class MainMenu : MonoBehaviour
             }
             else if (element.name == "Resolution")
             {
+                // SIMPEL: Laat users kiezen wat ze willen
                 ChangeResolution(direction);
-                Debug.Log($"📺 Resolution adjusted: {direction}");
             }
             else if (element.name == "Quality")
             {
@@ -1026,9 +1136,11 @@ public class MainMenu : MonoBehaviour
         Debug.Log("🔊 AC Back");
         // Voeg hier je back sound toe
     }
+
     #endregion
 
     #region GAME ACTIONS
+
     void StartGame()
     {
         SaveAllSettings();
@@ -1051,6 +1163,7 @@ public class MainMenu : MonoBehaviour
         if (musicSlider != null) PlayerPrefs.SetFloat("MusicVolume", musicSlider.value);
         if (sfxSlider != null) PlayerPrefs.SetFloat("SFXVolume", sfxSlider.value);
 
+        // NORMALE RESOLUTIE SAVE
         PlayerPrefs.SetInt("ResolutionIndex", currentResolutionIndex);
         PlayerPrefs.SetInt("QualityLevel", currentQualityIndex);
 
@@ -1079,7 +1192,14 @@ public class MainMenu : MonoBehaviour
             SetSFXVolume(savedSFX);
         }
 
+        // LOAD RESOLUTIE
         currentResolutionIndex = PlayerPrefs.GetInt("ResolutionIndex", currentResolutionIndex);
+        if (currentResolutionIndex >= 0 && currentResolutionIndex < resolutions.Count)
+        {
+            var res = resolutions[currentResolutionIndex];
+            Screen.SetResolution(res.x, res.y, FullScreenMode.FullScreenWindow);
+            Debug.Log($"🔧 Loaded resolution: {res.x}x{res.y}");
+        }
         UpdateResolutionText();
 
         currentQualityIndex = PlayerPrefs.GetInt("QualityLevel", QualitySettings.GetQualityLevel());
@@ -1088,9 +1208,11 @@ public class MainMenu : MonoBehaviour
 
         Debug.Log("📁 Settings loaded!");
     }
+
     #endregion
 
     #region DEBUG METHODS
+
     // DEBUG METHOD - Log alle UI elementen voor troubleshooting
     void LogAllUIElements()
     {
