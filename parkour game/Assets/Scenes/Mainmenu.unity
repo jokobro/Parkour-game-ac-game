@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 371236998}
   - component: {fileID: 371236997}
   - component: {fileID: 371237001}
+  - component: {fileID: 371237002}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -201,6 +202,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 132465299ebe05d46bf2f79a3d6ea001, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &371237002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 371236996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c57ff0c1a42e2e94cbc70532c23e2954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FixRenderQuality
+  autoFixOnStart: 1
 --- !u!1 &405602906
 GameObject:
   m_ObjectHideFlags: 0
