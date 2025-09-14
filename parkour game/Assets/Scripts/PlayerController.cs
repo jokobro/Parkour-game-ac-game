@@ -70,11 +70,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-
-
-
-
     private void Update()
     {
         // Lees de input van de speler (WASD of controllerstick)

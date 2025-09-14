@@ -84,55 +84,38 @@ public class MainMenu : MonoBehaviour
         // STAP 1: Bewaar native monitor resolutie en aspect ratio
         nativeResolution = Screen.currentResolution;
         nativeAspectRatio = (float)nativeResolution.width / (float)nativeResolution.height;
-        
+
         // STAP 2: Setup ALLEEN échte monitor resoluties
         SetupRealMonitorResolutions();
-        
+
         // STAP 3: Setup resolution controls
         RegisterButtonClick("ResolutionPrevBtn", () => ChangeResolution(-1));
         RegisterButtonClick("ResolutionNextBtn", () => ChangeResolution(1));
-        
+
         // STAP 4: Zorg dat main menu altijd native resolutie heeft
         EnsureMainMenuNativeResolution();
-        
-        UpdateResolutionText();
 
-        Debug.Log($"🖥️ Native monitor: {nativeResolution.width}x{nativeResolution.height}@{nativeResolution.refreshRate}Hz");
-        Debug.Log($"📐 Native aspect ratio: {nativeAspectRatio:F3} ({GetAspectRatioName(nativeAspectRatio)})");
-        Debug.Log($"🎮 Main menu stays at native resolution");
-        Debug.Log($"📺 Test scene will use ONLY REAL monitor resolutions (100% guaranteed no black bars)");
+        UpdateResolutionText();
     }
 
     void SetupRealMonitorResolutions()
     {
         realMonitorResolutions.Clear();
-        
-        Debug.Log($"🔍 Scanning ALL monitor resolutions from Screen.resolutions...");
-        
+
         // STAP 1: Verzamel alle monitor resoluties (zonder filtering)
         var allMonitorRes = Screen.resolutions.ToList();
-        Debug.Log($"📺 Total resolutions reported by monitor: {allMonitorRes.Count}");
-        
+
+
         // STAP 2: Filter op aspect ratio matching (kleine tolerantie)
         const float aspectTolerance = 0.02f; // Iets ruimer voor edge cases
-        var aspectMatchingRes = allMonitorRes.Where(res => {
+        var aspectMatchingRes = allMonitorRes.Where(res =>
+        {
             float resAspect = (float)res.width / (float)res.height;
             bool matches = Mathf.Abs(resAspect - nativeAspectRatio) < aspectTolerance;
-            
-            if (matches)
-            {
-                Debug.Log($"✅ KEEP: {res.width}x{res.height}@{res.refreshRate}Hz (aspect: {resAspect:F3}) - matches native");
-            }
-            else
-            {
-                Debug.Log($"❌ SKIP: {res.width}x{res.height}@{res.refreshRate}Hz (aspect: {resAspect:F3}) - different aspect ratio");
-            }
-            
+
             return matches;
         }).ToList();
-        
-        Debug.Log($"📐 Aspect ratio matching resolutions: {aspectMatchingRes.Count}");
-        
+
         // STAP 3: Groepeer per resolutie (width x height) en neem hoogste refresh rate
         var uniqueResolutions = new Dictionary<string, Resolution>();
         foreach (var res in aspectMatchingRes)
@@ -140,58 +123,34 @@ public class MainMenu : MonoBehaviour
             string key = $"{res.width}x{res.height}";
             if (!uniqueResolutions.ContainsKey(key) || res.refreshRate > uniqueResolutions[key].refreshRate)
             {
-                if (uniqueResolutions.ContainsKey(key))
-                {
-                    Debug.Log($"🔄 UPGRADE: {key} from {uniqueResolutions[key].refreshRate}Hz to {res.refreshRate}Hz");
-                }
-                else
-                {
-                    Debug.Log($"➕ ADD: {key}@{res.refreshRate}Hz");
-                }
                 uniqueResolutions[key] = res;
             }
         }
-        
+
         // STAP 4: Converteer naar lijst en sorteer (GEEN EXTRA RESOLUTIES TOEVOEGEN!)
         realMonitorResolutions = uniqueResolutions.Values.OrderBy(r => r.width * r.height).ToList();
-        
+
         // STAP 5: Vind current resolutie index
-        currentResolutionIndex = realMonitorResolutions.FindIndex(r => 
+        currentResolutionIndex = realMonitorResolutions.FindIndex(r =>
             r.width == nativeResolution.width && r.height == nativeResolution.height);
-        
+
         if (currentResolutionIndex == -1)
         {
-            Debug.LogWarning("⚠️ Native resolution not found in filtered list! Adding it manually...");
             realMonitorResolutions.Add(nativeResolution);
             realMonitorResolutions = realMonitorResolutions.OrderBy(r => r.width * r.height).ToList();
-            currentResolutionIndex = realMonitorResolutions.FindIndex(r => 
+            currentResolutionIndex = realMonitorResolutions.FindIndex(r =>
                 r.width == nativeResolution.width && r.height == nativeResolution.height);
         }
-
-        Debug.Log($"📺 FINAL REAL monitor resolutions: {realMonitorResolutions.Count} (100% supported by your monitor)");
-        
-        // Log alle beschikbare resoluties
-        for (int i = 0; i < realMonitorResolutions.Count; i++)
-        {
-            var res = realMonitorResolutions[i];
-            string marker = (i == currentResolutionIndex) ? " <-- CURRENT" : "";
-            string quality = GetResolutionQuality(res.width, res.height);
-            float aspect = (float)res.width / (float)res.height;
-            string aspectName = GetAspectRatioName(aspect);
-            Debug.Log($"  📺 [{i}] {res.width}x{res.height}@{res.refreshRate}Hz ({quality}) [{aspectName}]{marker}");
-        }
-        
-        Debug.Log($"🎯 GUARANTEE: All {realMonitorResolutions.Count} resolutions are 100% real and supported by your monitor!");
     }
 
     string GetAspectRatioName(float aspectRatio)
     {
-        if (Mathf.Abs(aspectRatio - 16f/9f) < 0.01f) return "16:9";
-        if (Mathf.Abs(aspectRatio - 21f/9f) < 0.01f) return "21:9";
-        if (Mathf.Abs(aspectRatio - 32f/9f) < 0.01f) return "32:9";
-        if (Mathf.Abs(aspectRatio - 4f/3f) < 0.01f) return "4:3";
-        if (Mathf.Abs(aspectRatio - 16f/10f) < 0.01f) return "16:10";
-        if (Mathf.Abs(aspectRatio - 5f/4f) < 0.01f) return "5:4";
+        if (Mathf.Abs(aspectRatio - 16f / 9f) < 0.01f) return "16:9";
+        if (Mathf.Abs(aspectRatio - 21f / 9f) < 0.01f) return "21:9";
+        if (Mathf.Abs(aspectRatio - 32f / 9f) < 0.01f) return "32:9";
+        if (Mathf.Abs(aspectRatio - 4f / 3f) < 0.01f) return "4:3";
+        if (Mathf.Abs(aspectRatio - 16f / 10f) < 0.01f) return "16:10";
+        if (Mathf.Abs(aspectRatio - 5f / 4f) < 0.01f) return "5:4";
         return $"{aspectRatio:F2}:1";
     }
 
@@ -199,7 +158,7 @@ public class MainMenu : MonoBehaviour
     {
         // Zorg dat main menu scene altijd native resolutie heeft
         string currentScene = SceneManager.GetActiveScene().name;
-        
+
         if (IsMainMenuScene(currentScene))
         {
             // FORCE native resolutie voor main menu
@@ -212,7 +171,7 @@ public class MainMenu : MonoBehaviour
         // Check voor main menu scene namen (case insensitive)
         string[] mainMenuScenes = { "mainmenu", "main menu", "menu", "start", "title" };
         string lowerSceneName = sceneName.ToLower();
-        
+
         foreach (string menuScene in mainMenuScenes)
         {
             if (lowerSceneName.Contains(menuScene))
@@ -242,43 +201,32 @@ public class MainMenu : MonoBehaviour
 
     void ChangeResolution(int direction)
     {
-        if (realMonitorResolutions.Count == 0) 
+        if (realMonitorResolutions.Count == 0)
         {
-            Debug.LogWarning("⚠️ No real monitor resolutions available!");
             return;
         }
 
         // Update index
         currentResolutionIndex = (currentResolutionIndex + direction + realMonitorResolutions.Count) % realMonitorResolutions.Count;
         var newRes = realMonitorResolutions[currentResolutionIndex];
-        
+
         // BELANGRIJKE LOGICA: Alleen toepassen als we NIET in main menu zijn
         string currentScene = SceneManager.GetActiveScene().name;
-        
-        if (IsMainMenuScene(currentScene))
-        {
-            // Main menu: NIET de resolutie wijzigen, alleen de setting opslaan
-            Debug.Log($"📺 Resolution setting changed to: {newRes.width}x{newRes.height}@{newRes.refreshRate}Hz (will apply in Test scene)");
-            Debug.Log($"🎮 Main menu stays at native: {nativeResolution.width}x{nativeResolution.height}@{nativeResolution.refreshRate}Hz");
-            Debug.Log($"🎯 GUARANTEED: This resolution is 100% supported by your monitor!");
-        }
-        else if (IsGameplayScene(currentScene))
+
+        if (!IsMainMenuScene(currentScene) && IsGameplayScene(currentScene))
         {
             // Test scene: WEL de resolutie toepassen met REAL MONITOR GUARANTEE
             ApplyResolutionSafely(newRes, "Test Scene");
         }
-        
+
         UpdateResolutionText();
     }
 
     void ApplyResolutionSafely(Resolution resolution, string context)
     {
-        Debug.Log($"🔧 APPLYING {context} resolution: {resolution.width}x{resolution.height}@{resolution.refreshRate}Hz");
-        Debug.Log($"🎯 GUARANTEE: This is a REAL monitor resolution - no black bars expected!");
-        
         // STAP 1: Probeer Fullscreen Window mode (beste voor most monitors)
         Screen.SetResolution(resolution.width, resolution.height, FullScreenMode.FullScreenWindow, resolution.refreshRate);
-        
+
         // STAP 2: Wacht en verifieer
         StartCoroutine(VerifyRealResolution(resolution, context));
     }
@@ -288,41 +236,23 @@ public class MainMenu : MonoBehaviour
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame(); // Extra frames voor GPU sync
         yield return new WaitForEndOfFrame();
-        
+
         var currentRes = Screen.currentResolution;
-        bool exactMatch = (currentRes.width == targetResolution.width && 
+        bool exactMatch = (currentRes.width == targetResolution.width &&
                           currentRes.height == targetResolution.height);
-        
+
         float currentAspect = (float)currentRes.width / (float)currentRes.height;
         float targetAspect = (float)targetResolution.width / (float)targetResolution.height;
         bool aspectMatch = Mathf.Abs(currentAspect - targetAspect) < 0.01f;
-        
-        if (exactMatch)
+
+        if (!exactMatch)
         {
-            string quality = GetResolutionQuality(currentRes.width, currentRes.height);
-            string aspectName = GetAspectRatioName(currentAspect);
-            Debug.Log($"✅✅✅ {context} resolution PERFECT: {currentRes.width}x{currentRes.height}@{currentRes.refreshRate}Hz ({quality}) [{aspectName}]");
-            
-        }
-        else if (aspectMatch)
-        {
-            Debug.LogWarning($"⚠️ {context} resolution CLOSE: Got {currentRes.width}x{currentRes.height}, wanted {targetResolution.width}x{targetResolution.height}");
-            Debug.Log($"✅ Aspect ratio OK - no black bars expected (real monitor resolution)");
-        }
-        else
-        {
-            Debug.LogError($"❌ {context} resolution UNEXPECTED! Got: {currentRes.width}x{currentRes.height}, Target: {targetResolution.width}x{targetResolution.height}");
-            Debug.LogError($"😬 This should NOT happen with real monitor resolutions!");
-            
             // FALLBACK: probeer native resolutie
-            if (!exactMatch && targetResolution.width != nativeResolution.width)
+            if (targetResolution.width != nativeResolution.width)
             {
-                Debug.Log($"🔄 EMERGENCY FALLBACK: Reverting to native resolution...");
                 Screen.SetResolution(nativeResolution.width, nativeResolution.height, FullScreenMode.FullScreenWindow, nativeResolution.refreshRate);
-                
                 yield return new WaitForEndOfFrame();
                 var fallbackRes = Screen.currentResolution;
-                Debug.Log($"🏠 Emergency fallback result: {fallbackRes.width}x{fallbackRes.height}@{fallbackRes.refreshRate}Hz");
             }
         }
     }
@@ -381,8 +311,6 @@ public class MainMenu : MonoBehaviour
 
         // DEBUG: Log alle UI elementen
         LogAllUIElements();
-
-        Debug.Log("🎮 AC Syndicate Main Menu Setup Complete - PURE REAL monitor resolutions only!");
     }
 
     void FindAllPanels()
@@ -421,8 +349,6 @@ public class MainMenu : MonoBehaviour
                 button.AddToClassList("nav-arrow-button");
             }
         }
-
-        Debug.Log($"✅ AC Syndicate styling applied to {allButtons.Count} buttons");
     }
 
     void SetupButtonClicks()
@@ -430,7 +356,6 @@ public class MainMenu : MonoBehaviour
         // UPDATED StartGame method met scene-specific resolution
         RegisterButtonClick("ContinueButton", () => StartGameWithResolution());
         RegisterButtonClick("OptionsButton", () => {
-            Debug.Log("🎯 Options clicked - checking if panel exists...");
             ShowPanel("Options");
         });
         RegisterButtonClick("QuitButton", QuitGame);
@@ -456,7 +381,6 @@ public class MainMenu : MonoBehaviour
         {
             button.clicked += onClick;
         }
-        
     }
 
     void SetupMouseHoverEvents()
@@ -804,7 +728,7 @@ public class MainMenu : MonoBehaviour
 
         var resolutionPrevBtn = root.Q<Button>("ResolutionPrevBtn");
         var resolutionContainer = root.Q<VisualElement>("ResolutionContainer");
-        
+
         if (resolutionPrevBtn != null && resolutionContainer != null)
         {
             selectableElements.Add(new MenuElement("Resolution", resolutionPrevBtn, resolutionContainer));
@@ -812,7 +736,7 @@ public class MainMenu : MonoBehaviour
 
         var qualityPrevBtn = root.Q<Button>("QaulityPrevBtn");
         var qualityContainer = root.Q<VisualElement>("QaulityContainer");
-        
+
         if (qualityPrevBtn != null && qualityContainer != null)
         {
             selectableElements.Add(new MenuElement("Quality", qualityPrevBtn, qualityContainer));
@@ -968,7 +892,6 @@ public class MainMenu : MonoBehaviour
             }
             wasUp = true;
             lastInputTime = Time.time;
-            /*PlayNavigationSound();*/
         }
         else if (combinedInput.y <= threshold) wasUp = false;
 
@@ -984,7 +907,6 @@ public class MainMenu : MonoBehaviour
             }
             wasDown = true;
             lastInputTime = Time.time;
-            /*PlayNavigationSound();*/
         }
         else if (combinedInput.y >= -threshold) wasDown = false;
 
@@ -1029,16 +951,8 @@ public class MainMenu : MonoBehaviour
             else
             {
                 ActivateCurrentElement();
-                /*PlayConfirmSound();*/
             }
         }
-
-        /*// B button (back)
-        if (Gamepad.current.buttonEast.wasPressedThisFrame)
-        {
-            GoBack();
-            *//*PlayBackSound();*//*
-        }*/
     }
 
     void NavigateUp()
@@ -1115,21 +1029,6 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-   /* void PlayNavigationSound()
-    {
-        Debug.Log("🔊 AC Navigation");
-    }
-
-    void PlayConfirmSound()
-    {
-        Debug.Log("🔊 AC Confirm");
-    }
-
-    void PlayBackSound()
-    {
-        Debug.Log("🔊 AC Back");
-    }*/
-
     #endregion
 
     #region GAME ACTIONS - UPDATED MET PURE REAL RESOLUTION
@@ -1138,7 +1037,7 @@ public class MainMenu : MonoBehaviour
     void StartGameWithResolution()
     {
         SaveAllSettings();
-        
+
         // BELANGRIJK: Apply resolutie setting voor Test scene
         StartCoroutine(LoadSceneWithPureRealResolution("Test sceme"));
     }
@@ -1147,13 +1046,13 @@ public class MainMenu : MonoBehaviour
     {
         // Load de scene
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
-        
+
         // Wacht tot scene geladen is
         while (!asyncLoad.isDone)
         {
             yield return null;
         }
-        
+
         // Apply de correcte resolutie voor deze scene MET PURE REAL GUARANTEE
         yield return new WaitForEndOfFrame(); // Wacht een frame
         yield return new WaitForEndOfFrame(); // Extra frame voor zekerheid
@@ -1213,30 +1112,18 @@ public class MainMenu : MonoBehaviour
         QualitySettings.SetQualityLevel(currentQualityIndex);
         UpdateQualityText();
     }
-
     #endregion
 
     #region DEBUG METHODS
-
     void LogAllUIElements()
     {
         var root = uiDocument.rootVisualElement;
-
-        Debug.Log("=== 🔍 UI ELEMENTS DEBUG ===");
 
         var panels = new string[] { "Options", "Video", "Sound", "Credits", "Controls" };
         foreach (string panelName in panels)
         {
             var panel = root.Q<VisualElement>(panelName);
         }
-
-        /*var allButtons = root.Query<Button>().ToList();
-        foreach (var btn in allButtons)
-        {
-            Debug.Log($"  🔘 Button: {btn.name} (text: '{btn.text}')");
-        }
-
-        Debug.Log("=== 🔍 END UI ELEMENTS DEBUG ===");*/
     }
     #endregion
 }
