@@ -31,6 +31,8 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private List<GameObject> PickupObjects = new List<GameObject>();
 
+    private bool isAttacking = false;
+
     private void Awake()
     {
         playerInput = new PlayerInput();
